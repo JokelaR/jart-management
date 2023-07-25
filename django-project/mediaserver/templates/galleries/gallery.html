@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load media_utility %}
+{% block title %}Janart{% endblock title %}
+
+{% block page-style %}
+<link rel="stylesheet" href="{% static 'gallery-style.css' %}">
+<link rel="stylesheet" href="{% static '/photoswipe/photoswipe.css' %}">
+<link rel="stylesheet" href="{% static '/photoswipe/photoswipe-dynamic-caption-plugin.css' %}">
+<style id="pixelatedStyle" disabled="false">
+    .pswp__img {
+        /*Browsers don't seem to respect disabled="true" on page load
+        so the style is pixelated when pixelatedStyle is FALSE*/
+        image-rendering: auto; 
+    }
+</style>
+{% endblock page-style %}
+
+{% block body-content %}
+<main>
+    <div id="galleryContainer">
+        <h2>{{ gallery.title }}</h2>
+        {% for media in items %}
+            <div class="album-image">
+            {% if 'image/' in media.type %}
+                <a href="{% static media.file.url %}"
+                    data-pswp-width="{{media.width}}"
+                    data-pswp-height="{{media.height}}"
+                    target="_blank">
+                    <img src="{% static media.file.url %}" alt="Fanart by {{media.author}}">
+                </a>
+            {% elif 'video/' in media.type %}
+                <a href="{% static media.file.url %}"
+                    data-pswp-width="{{media.width}}"
+                    data-pswp-height="{{media.height}}"
+                    data-pswp-video-src="{{media.file.url}}"
+                    data-pswp-video-loop={{media.loop}}
+                    target="_blank">
+                    <video src="{% static media.file.url %}" controls {% if media.loop %}loop="true"{% endif %}>
+                </a>
+            {% else %}
+                <p class="unsupportedFiletypePlaceholder">Unsupported Filetype</p>
+            {% endif %}
+                <span>
+                    {% autoescape on %}
+                    {% if media.author and media.author.strip %}<strong>{{media.author}}</strong>{% endif %}
+                    {% if media.description and media.description.strip %}
+                    <p class="authorDescription">
+                        "{{media.description|linebreaksbr|urlize}}"
+                    </p>
+                    {% endif %}
+                    {% if media.uploaderDescription and media.uploaderDescription.strip %}
+                    <p class="uploaderDescription">
+                        {{media.uploaderDescription|linebreaksbr|urlize}}
+                    </p>
+                    {% endif %}
+                    {% endautoescape %}
+                </span>
+            </div>
+        {% endfor %}
+    </div>
+</main>
+{% endblock body-content %}
+
+{% block after-body %}
+<script type="module">
+    import PhotoSwipeLightbox from '{% static "/photoswipe/photoswipe-lightbox.esm.js" %}';
+    import PhotoSwipeDynamicCaption from '{% static "/photoswipe/photoswipe-dynamic-caption-plugin.esm.js" %}'
+    import PhotoSwipe from '{% static "/photoswipe/photoswipe.esm.js" %}';
+
+    const pixelatedStyle = document.getElementById('pixelatedStyle');
+    const galleryElement = document.getElementById('galleryContainer');
+
+    const lightbox = new PhotoSwipeLightbox({
+        gallery: '#galleryContainer',
+        children: '.album-image > a',
+        pswpModule: PhotoSwipe,
+        bgOpacity: 0.925,
+        
+        paddingFn: (viewportSize) => {
+            return {
+            top: 30, bottom: 30, left: 70, right: 70
+            }
+        },
+    });
+
+    const captionPlugin = new PhotoSwipeDynamicCaption(lightbox, {
+        type: 'auto',
+        captionContent: (slide) => {
+            if(slide.data.element?.parentNode.querySelector('span')) {
+                return slide.data.element.parentNode.querySelector('span').innerHTML;
+            }
+            else {
+                return '';
+            }
+        }
+    });
+
+    lightbox.on('uiRegister', function() {
+        lightbox.pswp.ui.registerElement({
+            name: 'pixelButton',
+            title: 'Toggle pixelated rendering',
+            ariaLabel: 'Toggle pixelated rendering',
+            order: 9,
+            isButton: true,
+            html: '🏁',
+            onClick: (event, el) => {
+                pixelatedStyle.disabled = !pixelatedStyle.disabled;
+            }
+        });
+    });
+
+    lightbox.init();
+
+    lightbox.addFilter('itemData', (itemData, index) => {
+        const videoSrc = itemData.element.dataset.pswpVideoSrc;
+        const loopVideo = itemData.element.dataset.pswpVideoLoop;
+        if (videoSrc) {
+            itemData.videoSrc = videoSrc;
+            itemData.loopVideo = loopVideo;
+        }
+        return itemData;
+    });
+
+    lightbox.on('contentLoad', (e) => {
+        const { content, isLazy } = e;
+        if(content.data.videoSrc) {
+            e.preventDefault();
+
+            content.element = document.createElement('video');
+            content.element.src = content.data.videoSrc;
+            content.element.autoplay = false;
+            content.element.loop = content.data.loopVideo;
+            content.element.controls = true;
+        }
+    });
+
+    lightbox.addFilter('useContentPlaceholder', (useContentPlaceholder, content) => {
+        if(content.data.videoSrc) {
+            return false;
+        }
+        return useContentPlaceholder;
+    });
+    lightbox.addFilter('isContentLoading', (isContentLoading, content) => {
+        if(content.data.videoSrc) {
+            return false;
+        }
+        return isContentLoading;
+    });
+</script>
+{% endblock after-body %}

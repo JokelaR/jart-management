@@ -1,0 +1,15 @@
+header {
+    display: flex;
+    justify-content: space-between;
+}
+#userContainer {
+    text-align: right;
+    flex-grow: 1;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    flex-basis: 0;
+}
+#userContainer span {
+    margin-right: 1rem;
+}

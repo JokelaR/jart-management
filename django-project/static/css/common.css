@@ -1,0 +1,12 @@
+html {
+    background-color: rgb(27, 17, 17);
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.warn {
+    color: #d35555;
+    font-style: italic;
+}
+a {
+    color: #ffb4b4;
+}

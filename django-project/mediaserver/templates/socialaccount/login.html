@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Janart Login{% endblock title %}
+
+{% block page-style %}<link rel="stylesheet" href="{% static 'index.css' %}">{% endblock page-style %}
+
+{% block body-content %}
+<main style="">
+  <h1>{% blocktrans with provider.name as provider %}Sign In Via {{ provider }}{% endblocktrans %}</h1>
+  <p>{% blocktrans with provider.name as provider %}You are about to sign in using {{ provider }}.{% endblocktrans %}</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">{% trans "Continue" %}</button>
+  </form>
+</main>
+{% endblock body-content %}

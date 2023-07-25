@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Janart Galleries{% endblock title %}
+{% block page-style %}<link rel="stylesheet" href="{% static 'index.css' %}">{% endblock page-style %}
+
+{% block body-content %}
+<main>
+    <h1>Galleries</h1>
+    <ul id="galleryList">
+        {% for gallery in gallery_list %}
+            <li>
+                <span>
+                    <a href="{% url 'gallery' gallery.id %}">{{ gallery.title }}</a>
+                {% if perms.mediaserver.change_gallery %}
+                    ( <a href="{% url 'edit_gallery' gallery.id %}">edit</a> | 
+                    <form action="{% url 'delete_gallery' gallery_id=gallery.id%}", method="POST">
+                        <button class="delete" type="submit" onclick="return confirm('Are you SURE you want to delete this gallery?');">delete</button>
+                        {% csrf_token %}
+                    </form>)
+                {% endif %}
+                </span>
+            </li>
+        {% endfor %}
+    </ul>
+    {% if perms.mediaserver.add_gallery %}
+    <form action="{% url 'create_gallery' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">+ New Gallery</a>
+    </form>
+    {% endif %}
+</main>
+{% endblock body-content %}

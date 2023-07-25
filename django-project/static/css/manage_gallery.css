@@ -1,0 +1,69 @@
+.center {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.mediaElement {
+    padding: 1rem;
+    margin: 1rem 2rem;
+    border: 2px solid black;
+    display: flex;
+}
+.moveButtons {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.mediaElement:last-child button[name="down"] {
+    display: none;
+}
+.mediaElement:first-child button[name="up"] {
+    display: none;
+}
+
+.mediaElement form {
+    display: flex;
+    flex-direction:row;
+    width:100%;
+}
+.imageContainer {
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+}
+.imageContainer img, input, button {
+    margin-bottom: 0.5rem;;
+}
+.imageContainer img, video {
+    width: 128px;
+    height: 128px;
+    object-fit: cover;
+}
+.imageContainer img+label {
+    display:none;    
+}
+.dataContainer {
+    padding: 1rem;
+    flex-grow: 1;
+}
+textarea {
+    max-width: 100%;
+    resize: vertical;
+}
+.dataContainer div {
+    display:flex;
+    flex-direction: column;
+}
+#addMedia {
+    width: 4rem;
+    height: 2rem;
+}
+#galleryTitle {
+    display:flex;
+    align-items: center;
+}
+#galleryTitle > h1,input {
+    margin-right: 0.5rem;
+}

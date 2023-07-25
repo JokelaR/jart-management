@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Gallery{% endblock title %}
+
+{% block page-style %}
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<link rel="stylesheet" href="{% static 'manage_gallery.css' %}">
+{% endblock page-style %}
+
+{% block body-content %}
+<div id="galleryTitle">
+    <h1>{{ gallery.title }}</h1>
+    <button onclick="edit_title()">✏️</button>
+</div>
+
+<div id="listContainer"></div>
+<div class="center">
+    <button id="addMedia">+</button>
+</div>
+<br>
+<div class="center">
+    <button id="submitGallery" onclick="save_gallery()">Save Gallery</button>
+</div>
+{% endblock body-content %}
+
+{% block after-body %}
+<template id="new-image-template">
+    <div class="mediaElement">
+        <div class="moveButtons"><button type="button" name="up">⬆️</button><button type="button" name="down">⬇️</button></div>
+        <form action="/update-media/">
+            <div class="imageContainer">
+                <div id="replaceme"></div>
+                <label><input type="checkbox" name="loop">Loop</label>
+                <button type="button" name="delete">Remove</button>
+            </div>
+            <div class="dataContainer">
+                <div>
+                    <label for="author">Author</label>
+                    <input type="text" name="author" maxlength="256">    
+                </div>
+                <div>
+                    <label for="description">Author's description</label>
+                    <textarea type="textarea" name="description"></textarea>    
+                </div>
+                <div>
+                    <label for="uploaderDescription">Uploader's description</label>
+                    <textarea type="text" name="uploaderDescription"></textarea>    
+                </div>
+            </div>
+            <input type="hidden" name="uuid">
+        </form>
+    </div>
+</template>
+
+<template id="editable-title-template">
+    <input type="text" name="" id="">
+    <button onclick="update_title()">✔️</button>
+    <button onclick="edit_title()">❌</button>
+</template>
+<template id="gallery-title-template">
+    <h1></h1>
+    <button onclick="edit_title()">✏️</button>
+</template>
+
+
+<script>
+    const gallery_id = "{{ gallery.id }}";
+    let gallery_title = "{{ gallery.title|escapejs }}";
+    const csrf_token = "{{ csrf_token }}";
+    const mediaPath = '/static/'
+    const media_items = [
+    {% autoescape on %}
+        {% for media in media_items %}
+            {'uuid': '{{media.uuid}}', 'src': mediaPath + '{{media.file}}', 'type': '{{media.type}}', 'author': '{{media.author|escapejs}}', 'description': '{{media.description|escapejs}}', 'uploaderDescription': '{{media.uploaderDescription|escapejs}}', 'loop': '{{media.loop}}'},
+        {% endfor %}
+    {% endautoescape %}
+    ];
+</script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script src="{% static '/manage_gallery.js' %}"></script>
+{% endblock after-body %}
