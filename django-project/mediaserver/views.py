@@ -24,7 +24,7 @@ def redirect_login(request):
 
 @require_safe
 def galleries(request):
-    gallery_list = Gallery.objects.order_by('created_date')
+    gallery_list = Gallery.objects.order_by('-created_date')
     return render(request, "galleries/index.html", {'gallery_list': gallery_list})
 
 @require_safe
@@ -32,6 +32,14 @@ def gallery(request, gallery_id):
     gallery = get_object_or_404(Gallery, pk=gallery_id)
     items = gallery.media_items.order_by('galleryorder')
     return render(request, "galleries/gallery.html", {'gallery': gallery, 'items': items})
+
+@require_safe
+def latest_gallery(request):
+    gallery = Gallery.objects.order_by('-created_date').first()
+    if gallery is not None:
+        return HttpResponseRedirect(reverse("gallery", kwargs={'gallery_id':gallery.id}))
+    else:
+        return HttpResponseRedirect('/')
 
 @require_safe
 @login_required

@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load media_utility %}
-{% block title %}Janart{% endblock title %}
+{% block title %}Janart - {{gallery.title}}{% endblock title %}
+{% block embed-title %}Janart | {{gallery.title}}{% endblock embed-title %}
 
 {% block page-style %}
 <link rel="stylesheet" href="{% static 'gallery-style.css' %}">
@@ -23,20 +24,20 @@
         {% for media in items %}
             <div class="album-image">
             {% if 'image/' in media.type %}
-                <a href="{% static media.file.url %}"
+                <a href="{{ media.file.url }}"
                     data-pswp-width="{{media.width}}"
                     data-pswp-height="{{media.height}}"
                     target="_blank">
-                    <img src="{% static media.file.url %}" alt="Fanart by {{media.author}}">
+                    <img src="{{ media.file.url }}" alt="Fanart by {{media.author}}">
                 </a>
             {% elif 'video/' in media.type %}
-                <a href="{% static media.file.url %}"
+                <a href="{{ media.file.url }}"
                     data-pswp-width="{{media.width}}"
                     data-pswp-height="{{media.height}}"
                     data-pswp-video-src="{{media.file.url}}"
                     data-pswp-video-loop={{media.loop}}
                     target="_blank">
-                    <video src="{% static media.file.url %}" controls {% if media.loop %}loop="true"{% endif %}>
+                    <video src="{{ media.file.url }}" controls {% if media.loop %}loop="true"{% endif %}>
                 </a>
             {% else %}
                 <p class="unsupportedFiletypePlaceholder">Unsupported Filetype</p>
@@ -130,7 +131,9 @@
             content.element = document.createElement('video');
             content.element.src = content.data.videoSrc;
             content.element.autoplay = false;
-            content.element.loop = content.data.loopVideo;
+            if (content.data.loopVideo) {
+                content.element.loop = (content.data.loopVideo == "True");
+            }
             content.element.controls = true;
         }
     });

@@ -7,6 +7,14 @@
         <title>{% block title %}Janart{% endblock %}</title>
         <link rel="stylesheet" href="{% static 'common.css' %}">
         <link rel="stylesheet" href="{% static 'normalize.css' %}">
+        <meta name="description" content="{% block page-description %}The Joseph Anderson Fanart Repository{% endblock %}">
+        <meta content="{% block embed-title %}Janart{% endblock %}" property="og:title">
+        <meta content="{% block embed-description %}Find all of your favorite chans here{% endblock %}" property="og:description">
+        <meta content="https://janart.bulder.fi" property="og:url">
+        <meta content="{% static 'janart_icon.png' %}" property="og:imgage">
+        <meta name="twitter:image" content="{% static 'janart_icon.png' %}">
+        <meta content="#43B581" data-react-helmet="true" name="theme-color">
+        <link rel="shortcut icon" href="{% static 'janart_icon.png' %}" type="image/png">
         {% block page-style %}{% endblock page-style %}
     </head>
     <body>

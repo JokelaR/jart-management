@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Janart Login{% endblock title %}
+
+{% block page-style %}<link rel="stylesheet" href="{% static 'index.css' %}">{% endblock page-style %}
+
+{% block body-content %}
+<main>
+  <h1>Social Network Login Failure</h1>
+  <p>{% blocktrans with provider.name as provider %}An error occurred while attempting to login via your social network account. {{ auth_error }}.{% endblocktrans %}</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">{% trans "Continue" %}</button>
+  </form>
+</main>
+{% endblock body-content %}

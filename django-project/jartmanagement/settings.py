@@ -27,10 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("DJANGO_SECRET")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
+DEBUG = False
 
 # Application definition
 
@@ -98,6 +95,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        "OPTIONS": {
+            "timeout": 15,
+        },
     }
 }
 
@@ -137,10 +137,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = '/home/caddy/jart-static'
 STATICFILES_DIRS = [
-     os.path.join(STATIC_ROOT, 'css'),
-     os.path.join(STATIC_ROOT, 'js'),
+     os.path.join('static/css'),
+     os.path.join('static/js'),
+     os.path.join('static/img'),
 ]
 
 # Default primary key field type
@@ -148,8 +149,8 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_ROOT = '/media/'
-
+MEDIA_ROOT = '/home/caddy/jart-media/'
+MEDIA_URL = 'media/'
 SITE_ID=1
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -166,7 +167,16 @@ SOCIALACCOUNT_PROVIDERS = {
 ACCOUNT_EMAIL_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_AUTHENTICATION_METHOD = "username"
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 
-ACCOUNT_ADAPTER = 'mediaserver.account_adapter.NoLocalUsersAdapter'
 LOGIN_URL = '/accounts/discord/login'
 LOGIN_REDIRECT_URL = "/"
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = [
+    'https://janart.bulder.fi',
+]
+ALLOWED_HOSTS = [
+	'janart.bulder.fi',
+]

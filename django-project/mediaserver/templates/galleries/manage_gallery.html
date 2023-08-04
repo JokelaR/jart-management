@@ -68,11 +68,11 @@
     const gallery_id = "{{ gallery.id }}";
     let gallery_title = "{{ gallery.title|escapejs }}";
     const csrf_token = "{{ csrf_token }}";
-    const mediaPath = '/static/'
+    const mediaPath = '/media/'
     const media_items = [
     {% autoescape on %}
         {% for media in media_items %}
-            {'uuid': '{{media.uuid}}', 'src': mediaPath + '{{media.file}}', 'type': '{{media.type}}', 'author': '{{media.author|escapejs}}', 'description': '{{media.description|escapejs}}', 'uploaderDescription': '{{media.uploaderDescription|escapejs}}', 'loop': '{{media.loop}}'},
+            {'uuid': '{{media.uuid}}', 'src': '{{ media.file.url }}', 'type': '{{media.type}}', 'author': '{{media.author|escapejs}}', 'description': '{{media.description|escapejs}}', 'uploaderDescription': '{{media.uploaderDescription|escapejs}}', 'loop': '{{media.loop}}'},
         {% endfor %}
     {% endautoescape %}
     ];
