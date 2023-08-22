@@ -13,3 +13,7 @@ header {
 #userContainer span {
     margin-right: 1rem;
 }
+header img {
+    margin-top: 8px;
+    max-height: 76px;
+}
