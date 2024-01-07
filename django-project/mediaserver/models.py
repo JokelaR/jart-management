@@ -17,9 +17,11 @@ class Media(models.Model):
         return f'{self.file.name} - {self.type} file by {self.author}'
 
 class Gallery(models.Model):
+    id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=256)
     created_date = models.DateTimeField("date created", auto_now_add=True)
     media_items = models.ManyToManyField(Media, through="GalleryOrder")
+    category = models.CharField(max_length=64)
     def __str__(self):
         return self.title
     

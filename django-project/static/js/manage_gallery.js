@@ -4,9 +4,15 @@ const galleryTitleTemplate = document.getElementById('gallery-title-template');
 const editableTitleTemplate = document.getElementById('editable-title-template');
 const listContainer = document.getElementById('listContainer');
 const galleryTitleElement = document.getElementById('galleryTitle');
+const galleryCategorySelect = document.getElementById('galleryCategory');
 
 const allowedImageTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/apng', 'image/avif', 'image/gif']
 const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/ogg']
+
+galleryCategorySelect.value = original_category;
+let currentCategory = galleryCategorySelect.value;
+
+galleryCategorySelect.addEventListener('change', update_category);
 
 media_items.forEach(media_item => {
     append_media_template(media_item['src'], media_item['author'], media_item['description'], media_item['uploaderDescription'], media_item['loop'], media_item['uuid'], media_item['type']);
@@ -27,6 +33,10 @@ addMediaButton.addEventListener("click", (event) => {
         if(allowedImageTypes.includes(file.type)) {
             let img = new Image;
             img.onload = function() {
+                if(img.width == 0 || img.height == 0) {
+                    toast(`${file.name} has a zero for height or width! Screenshot this for Bulder`, -1, 'warn');
+                }
+
                 fd.append('file', file);
                 fd.append('type', file.type);
                 fd.append('width', img.width);
@@ -50,6 +60,10 @@ addMediaButton.addEventListener("click", (event) => {
             videoElement.preload = 'metadata';
             videoElement.src = fileurl;
             videoElement.onloadedmetadata = function() {
+                if(videoElement.videoWidth == 0 || videoElement.videoHeight == 0) {
+                    toast(`${file.name} has a zero for height or width! Screenshot this for Bulder`, -1, 'warn');
+                }
+
                 fd.append('file', file);
                 fd.append('type', file.type);
                 fd.append('width', videoElement.videoWidth);
@@ -198,6 +212,37 @@ function update_title() {
     }
 }
 
+function update_category() {
+    let newCategory = galleryCategorySelect.value;
+    if(newCategory != currentCategory) {
+        if(newCategory == 'new') {
+            newCategory = window.prompt("New category (all lowercase, underscores for spaces):");
+            if(newCategory) {
+                let newCategoryElement = document.createElement('option');
+                newCategoryElement.value = newCategory;
+                newCategoryElement.textContent = newCategory;
+                galleryCategorySelect.insertBefore(newCategoryElement, galleryCategorySelect.lastElementChild);
+            }
+            else {
+                galleryCategorySelect.value = currentCategory;
+                return;
+            }
+        }
+        let request = new Request(`/modify/gallery/${gallery_id}/category`, {
+            method: "POST",
+            body: newCategory,
+            headers: { 'X-CSRFToken': csrf_token }
+        })
+        fetch(request).then((response) => {
+            toastResult(response, 'Updated category!', 'Failed to update category');
+            if(response.status == 200) {
+                currentCategory = newCategory;
+            }
+            galleryCategorySelect.value = currentCategory;
+        });
+    }
+}
+
 function associate_media(uuid, order) {
     let request = new Request(`/modify/gallery/${gallery_id}/associate_media`, {
         method: "POST",
@@ -221,7 +266,32 @@ function toastResult(response, successText, failureText) {
     else {
         Toastify({
             text: `${failureText} (${response.statusText})`,
-            duration: 4000
+            duration: 4000,
+            style: {
+                background: 'darkred',
+            }
         }).showToast();    
     }
 }
+
+function toast(text, duration, severity) {
+    switch (severity) {
+        case 'info':
+            Toastify({
+                text: text,
+                duration: duration
+            }).showToast();
+            break;
+        case 'warn':
+            Toastify({
+                text: text,
+                duration: -1,
+                close: true,
+                style: {
+                    background: 'gold'
+                }
+            }).showToast();
+        default:
+            break;
+    }
+} 

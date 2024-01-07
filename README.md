@@ -1,2 +1,3 @@
 # jart-management
-a WIP concept for a gallery backend and management interface
+
+A Django image and video host

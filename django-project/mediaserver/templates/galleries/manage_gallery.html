@@ -9,14 +9,24 @@
 {% endblock page-style %}
 
 {% block body-content %}
-<div id="galleryTitle">
+<div id="galleryTitle" class="center">
     <h1>{{ gallery.title }}</h1>
-    <button onclick="edit_title()">✏️</button>
+    <button onclick="edit_title()" title="Edit title">✏️</button>
 </div>
+<div class="center">
+    <label for="category" style="padding-right: 0.25rem;">Category: </label>
+    <select name="category" id="galleryCategory">
+        {% for category in categories %}
+        <option value="{{category}}">{{category|title}}</option>
+        {% endfor %}
+        <option value="new">+ New category</option>
+    </select>
+</div>
+<br>
 
 <div id="listContainer"></div>
 <div class="center">
-    <button id="addMedia">+</button>
+    <button id="addMedia" title="Add media">+</button>
 </div>
 <br>
 <div class="center">
@@ -68,6 +78,7 @@
     const gallery_id = "{{ gallery.id }}";
     let gallery_title = "{{ gallery.title|escapejs }}";
     const csrf_token = "{{ csrf_token }}";
+    let original_category = "{{gallery.category}}";
     const mediaPath = '/media/'
     const media_items = [
     {% autoescape on %}

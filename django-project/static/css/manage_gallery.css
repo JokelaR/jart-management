@@ -62,7 +62,6 @@ textarea {
 }
 #galleryTitle {
     display:flex;
-    align-items: center;
 }
 #galleryTitle > h1,input {
     margin-right: 0.5rem;
