@@ -9,7 +9,16 @@
     margin: 1rem 2rem;
     border: 2px solid black;
     display: flex;
+
+    form {
+        display: flex;
+        flex-direction:row;
+        width:100%;
+    }
 }
+.mediaElement[data-status='changed'] { border-color: red; }
+.mediaElement[data-status='saving'] { border-color: yellow; }
+.mediaElement[data-status='saved'] { border-color: green; }
 .moveButtons {
     display: flex;
     flex-direction: column;
@@ -22,47 +31,113 @@
     display: none;
 }
 
-.mediaElement form {
-    display: flex;
-    flex-direction:row;
-    width:100%;
-}
 .imageContainer {
     display:flex;
     flex-direction: column;
     align-items: center;
     padding: 1rem;
+
+    img, input, button {
+        margin-bottom: 0.5rem;;
+    }
+
+    img, video {
+        width: 128px;
+        height: 128px;
+        object-fit: cover;
+    }
+
+    img+label {
+        display:none;    
+    }
 }
-.imageContainer img, input, button {
-    margin-bottom: 0.5rem;;
-}
-.imageContainer img, video {
-    width: 128px;
-    height: 128px;
-    object-fit: cover;
-}
-.imageContainer img+label {
-    display:none;    
-}
+
 .dataContainer {
     padding: 1rem;
     flex-grow: 1;
+
+    > div {
+        display:flex;
+        flex-direction: column;
+    }
 }
 textarea {
     max-width: 100%;
     resize: vertical;
 }
-.dataContainer div {
-    display:flex;
-    flex-direction: column;
+
+.tagInput {
+    display: flex;
+    background-color: white;
+    position: relative;
+
+    input {
+        border: none;
+        flex-grow: 1;
+    }
+
+    .autocompletePopup {
+        position: absolute;
+        top: 100%;
+        background-color: white;
+        max-height: 10rem;
+        overflow-y: auto;
+        color: black;
+        width: calc(100% + 1rem);
+        border: solid black 1px;
+        border-radius: 0.25rem;
+        box-shadow: 0px 3px 5px black;
+        left: -0.5rem;
+        z-index: 1;
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        li:first-child::before {
+            content: "Tab →";
+            color: rgb(56, 65, 75);
+            border: solid 1px rgb(56, 65, 75);;
+            border-radius: 0.25rem;
+            padding: 0px 0.25rem;
+            margin-right: 0.5rem;
+            box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.33);
+        }
+        li:hover {
+            background-color: #ddd;
+        }
+    }
 }
-#addMedia {
-    width: 4rem;
-    height: 2rem;
+
+.tag:hover {
+    text-decoration: line-through;
+    cursor: pointer;
+    filter: saturate(0%);
 }
+
+#galleryButtonContainer {
+    position: sticky;
+    bottom: 0px;
+    justify-content: end;
+    display: flex;
+    background-color: rgba(0,0,0,0.5);
+    padding: 0.25rem;
+
+    #addMedia {
+        width: 4rem;
+    }
+}
+
+
 #galleryTitle {
     display:flex;
-}
-#galleryTitle > h1,input {
-    margin-right: 0.5rem;
+
+    h1,input {
+        margin-right: 0.5rem;
+    }
 }

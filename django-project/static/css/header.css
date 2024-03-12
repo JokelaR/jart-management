@@ -1,6 +1,11 @@
 header {
     display: flex;
     justify-content: space-between;
+
+    img {
+        margin-top: 8px;
+        max-height: 76px;
+    }
 }
 #userContainer {
     text-align: right;
@@ -9,11 +14,8 @@ header {
     justify-content: right;
     align-items: center;
     flex-basis: 0;
-}
-#userContainer span {
-    margin-right: 1rem;
-}
-header img {
-    margin-top: 8px;
-    max-height: 76px;
+
+    span {
+        margin-right: 1rem;
+    }
 }

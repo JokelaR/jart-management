@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("DJANGO_SECRET")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = (os.getenv("JANART_DEBUG") == 'True')
 
 # Application definition
 
@@ -56,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'jartmanagement.urls'
@@ -94,7 +95,7 @@ WSGI_APPLICATION = 'jartmanagement.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'janart_db',
+        'NAME': os.getenv('POSTGRES_DATABASE'),
         'USER': 'janart',
         'PASSWORD': os.getenv('POSTGRES_PASSWORD')
     }
@@ -148,8 +149,8 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_ROOT = '/home/caddy/jart-media/'
-MEDIA_URL = 'media/'
+MEDIA_ROOT = os.getenv("DJANGO_MEDIA_ROOT")
+MEDIA_URL = os.getenv("DJANGO_MEDIA_URL")
 SITE_ID=1
 
 SOCIALACCOUNT_PROVIDERS = {

@@ -25,16 +25,27 @@
 <br>
 
 <div id="listContainer"></div>
-<div class="center">
+
+<div id="galleryButtonContainer">
     <button id="addMedia" title="Add media">+</button>
-</div>
-<br>
-<div class="center">
     <button id="submitGallery" onclick="save_gallery()">Save Gallery</button>
 </div>
+    
 {% endblock body-content %}
 
 {% block after-body %}
+<template id="tag-template">
+    <div class="tag" onclick="remove_tag(this)">
+        <span class="tagLabel"></span>
+    </div>
+</template>
+
+<template id="autocomplete-template">
+    <div class="autocompletePopup">
+        <ul></ul>
+    </div>
+</template>
+
 <template id="new-image-template">
     <div class="mediaElement">
         <div class="moveButtons"><button type="button" name="up">⬆️</button><button type="button" name="down">⬇️</button></div>
@@ -46,11 +57,23 @@
             </div>
             <div class="dataContainer">
                 <div>
-                    <label for="author">Author</label>
-                    <input type="text" name="author" maxlength="256">    
+                    <label for="title">Title</label>
+                    <input type="text" name="title" maxlength="256">    
                 </div>
                 <div>
-                    <label for="description">Author's description</label>
+                    <label for="creator_tags">Creator(s)</label>
+                    <div class="tagInput">
+                        <input type="text" name="creator_tags" class="tagInput">
+                    </div>
+                </div>
+                <div>
+                    <label for="tags">Tags</label>
+                    <div class="tagInput">
+                        <input type="text" name="tags" class="tagInput">
+                    </div>
+                </div>
+                <div>
+                    <label for="description">Creator's description</label>
                     <textarea type="textarea" name="description"></textarea>    
                 </div>
                 <div>
@@ -73,7 +96,6 @@
     <button onclick="edit_title()">✏️</button>
 </template>
 
-
 <script>
     const gallery_id = "{{ gallery.id }}";
     let gallery_title = "{{ gallery.title|escapejs }}";
@@ -83,7 +105,25 @@
     const media_items = [
     {% autoescape on %}
         {% for media in media_items %}
-            {'uuid': '{{media.uuid}}', 'src': '{{ media.file.url }}', 'type': '{{media.type}}', 'author': '{{media.author|escapejs}}', 'description': '{{media.description|escapejs}}', 'uploaderDescription': '{{media.uploaderDescription|escapejs}}', 'loop': '{{media.loop}}'},
+            {
+                'uuid': '{{media.uuid}}', 
+                'src': '{{ media.file.url }}', 
+                'type': '{{media.type}}', 
+                'title': '{{media.title|escapejs}}', 
+                'description': '{{media.description|escapejs}}', 
+                'uploaderDescription': '{{media.uploaderDescription|escapejs}}', 
+                'loop': '{{media.loop}}', 
+                'creator_tags': [
+                    {% for tag in media.creator_tags.all %}
+                        '{{tag.tagname}}',
+                    {% endfor %}
+                ],
+                'tags': [
+                    {% for tag in media.tags.all %}
+                        {'tagname': '{{tag.tagname}}', 'namespace': '{{tag.namespace}}'},
+                    {% endfor %}
+                ],
+            },
         {% endfor %}
     {% endautoescape %}
     ];

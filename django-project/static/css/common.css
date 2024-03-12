@@ -10,3 +10,35 @@ html {
 a {
     color: #ffb4b4;
 }
+
+.tag[data-tag-namespace="creator"] { --tagcolor: rgb(187, 58, 58); }
+.tag[data-tag-namespace="game"] { --tagcolor: rgb(159, 125, 255); }
+.tag[data-tag-namespace="chan"] { --tagcolor: rgb(78, 203, 150);}
+.tag {
+    --tagcolor: rgb(187, 178, 58);
+    display:flex;
+    border: 1px solid var(--tagcolor);
+    color: var(--tagcolor) !important;
+    background-color: color-mix(in srgb, var(--tagcolor) 20%, transparent);
+    border-radius: 0.25rem;
+    text-decoration: none;
+    width: fit-content;
+    margin: 0.25rem;
+    overflow: hidden;
+
+    .tagLabel {
+        padding: 0.25rem;
+    }
+    .tagCount {
+        padding: 0.25rem;
+        display: inline-block;
+        background-color: color-mix(in srgb, var(--tagcolor) 30%, black);
+    }
+}
+.tag:hover {
+    filter: brightness(125%);
+}
+.tagContainer {
+    display: flex;
+    flex-wrap: wrap;
+}

@@ -1,6 +1,8 @@
 from django.urls import path, re_path
 from django.views.generic.base import RedirectView
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 from allauth import urls
 
 urlpatterns = [
@@ -18,8 +20,14 @@ urlpatterns = [
     path("modify/gallery/<int:gallery_id>/title", views.update_gallery_title, name="update_gallery_title"),
     path("modify/gallery/<int:gallery_id>/category", views.update_gallery_category, name="update_gallery_category"),
     path("modify/gallery/<int:gallery_id>/associate_media", views.associate_media, name="associate_media"),
+
+    path("creator/<str:tag>", views.CreatorTagListView.as_view(template_name="galleries/tag_list.html"), name="media_by_creator_tag"),
+    path("tags/<str:namespace>/<str:tag>", views.TagListView.as_view(template_name="galleries/tag_list.html"), name="media_by_tag"),
+
+    path("tags/autocomplete/", views.tags_by_startswith, name="tags_by_startswith"),
+
     #override allauth non-login urls
     re_path(r'^accounts\/(password|confirm-email|email).*', views.redirect_home, name="index_redirect"),
     path("accounts/signup/", views.redirect_login, name="login_redirect"),
     path("accounts/login/", views.redirect_login, name="login_redirect"),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

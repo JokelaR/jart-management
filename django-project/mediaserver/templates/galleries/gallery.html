@@ -21,14 +21,14 @@
 <main>
     <div id="galleryContainer">
         <h2>{{ gallery.title }}</h2>
-        {% for media in items %}
+        {% for media in page_obj %}
             <div class="album-image">
             {% if 'image/' in media.type %}
                 <a href="{{ media.file.url }}"
                     data-pswp-width="{{media.width}}"
                     data-pswp-height="{{media.height}}"
                     target="_blank">
-                    <img src="{{ media.file.url }}" alt="Fanart by {{media.author}}">
+                    <img src="{{ media.file.url }}" alt="{{media.title}}">
                 </a>
             {% elif 'video/' in media.type %}
                 <a href="{{ media.file.url }}"
@@ -44,9 +44,21 @@
             {% endif %}
                 <span>
                     {% autoescape on %}
-                    {% if media.author and media.author.strip %}<strong>{{media.author}}</strong>{% endif %}
+                    {% if media.title and media.title.strip %}<strong>{{media.title}}</strong>{% endif %}
+                    {% if media.creator_tags%}
+                    <div class="tagContainer">
+                    {% for creator in media.creator_tags.all %}
+                    <a data-tag-namespace="creator" class="tag" href="/creator/{{creator.tagname}}" title="Creator: {{creator.tagname}}">
+                        <div class="tagLabel">
+                        {{creator.tagname}}
+                        </div>
+                        <div class="tagCount">{{creator.tag_count}}</div>
+                    </a>
+                    {% endfor %}
+                    </div>
+                    {% endif %}
                     {% if media.description and media.description.strip %}
-                    <p class="authorDescription">
+                    <p class="creatorDescription">
                         "{{media.description|linebreaksbr|urlize}}"
                     </p>
                     {% endif %}
@@ -55,12 +67,29 @@
                         {{media.uploaderDescription|linebreaksbr|urlize}}
                     </p>
                     {% endif %}
+                    {% if media.tags%}
+                    <div class="tagContainer">
+                    {% for tag in media.tags.all %}
+                    <a data-tag-namespace="{{tag.namespace}}" class="tag" href="/tags/{{tag.namespace|default:"all"}}/{{tag.tagname}}" title="See entries for: {{tag.tagname}}">
+                        <div class="tagLabel">
+                        {{tag.tagname}}
+                        </div>
+                        <div class="tagCount">{{tag.tag_count}}</div>
+                    </a>
+                    {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% block description_end %}
+                    {% endblock description_end %}
+
                     {% endautoescape %}
                 </span>
             </div>
         {% endfor %}
     </div>
 </main>
+{% block pagination %}{% endblock pagination %}
 {% endblock body-content %}
 
 {% block after-body %}
@@ -76,7 +105,7 @@
         gallery: '#galleryContainer',
         children: '.album-image > a',
         pswpModule: PhotoSwipe,
-        bgOpacity: 0.925,
+        bgOpacity: 1,
         
         paddingFn: (viewportSize) => {
             return {
