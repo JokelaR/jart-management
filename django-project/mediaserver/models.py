@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.db.models.signals import m2m_changed
+from django.db.models import F
 import uuid
 
 class Tag(models.Model):
@@ -31,6 +32,9 @@ class Tag(models.Model):
 
     def __str__(self):
         return f'{self.namespace}:{self.tagname}'
+    
+    class Meta:
+        ordering = ['namespace', 'tagname']
 
 class Media(models.Model):
     file = models.FileField()

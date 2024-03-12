@@ -420,9 +420,11 @@ function attach_autocomplete(element, target_namespace) {
                     namespace = tag.split(':')[0];
                     tag = tag.replace(namespace + ':', '');
                 }
-                add_tag(event.target, namespace, tag);
-                event.target.value = '';
-                hideAutocomplete();
+                if(tag != '') {
+                    add_tag(event.target, namespace, tag);
+                    event.target.value = '';
+                    hideAutocomplete();    
+                }
             }
             if (event.key == 'Tab') {
                 event.preventDefault();
@@ -454,10 +456,10 @@ function hideAutocomplete() {
 
 function add_tag(beforeTarget, namespace, tagname) {
     let tag_clone = tagTemplate.content.cloneNode(true);
-    tag_clone.querySelector('.tagLabel').textContent = tagname;
+    tag_clone.querySelector('.tagLabel').textContent = tagname.trim();
     if (namespace == undefined) { namespace = ''; }
-    tag_clone.querySelector('.tag').dataset.tagNamespace = namespace;
-    tag_clone.querySelector('.tag').dataset.tagname = tagname;
+    tag_clone.querySelector('.tag').dataset.tagNamespace = namespace.trim();
+    tag_clone.querySelector('.tag').dataset.tagname = tagname.trim();
     beforeTarget.parentElement.insertBefore(tag_clone, beforeTarget);
     beforeTarget.dispatchEvent(new Event('change', { bubbles: true }));
 }
