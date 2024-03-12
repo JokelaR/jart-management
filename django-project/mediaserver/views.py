@@ -274,7 +274,7 @@ class CreatorTagListView(ListView):
 
     def get_queryset(self):
         key = self.kwargs.get('tag', '')
-        queryset = Media.objects.filter(creator_tags__tagname__iexact=key).order_by('uploaded_date').reverse()
+        queryset = Media.objects.filter(creator_tags__tagname__iexact=key).order_by('uploaded_date').distinct().reverse()
         return queryset
     
 class TagListView(ListView):
@@ -286,7 +286,8 @@ class TagListView(ListView):
         namespace = self.kwargs.get('namespace', '')
         
         if namespace == 'all':
-            queryset = Media.objects.filter(tags__tagname__iexact=tag).order_by('uploaded_date').reverse()
+            queryset = Media.objects.filter(tags__tagname__iexact=tag).order_by('uploaded_date').distinct().reverse()
         else:
-            queryset = Media.objects.filter(tags__namespace__contains=namespace).filter(tags__tagname__iexact=tag).order_by('uploaded_date').reverse()
+            queryset = Media.objects.filter(tags__namespace__iexact=namespace).filter(tags__tagname__iexact=tag).order_by('uploaded_date').distinct().reverse()
+        print(queryset)
         return queryset
