@@ -100,7 +100,7 @@
     const gallery_id = "{{ gallery.id }}";
     let gallery_title = "{{ gallery.title|escapejs }}";
     const csrf_token = "{{ csrf_token }}";
-    let original_category = "{{gallery.category}}";
+    let original_category = "{{gallery.category|escapejs}}";
     const mediaPath = '/media/'
     const media_items = [
     {% autoescape on %}
@@ -115,12 +115,12 @@
                 'loop': '{{media.loop}}', 
                 'creator_tags': [
                     {% for tag in media.creator_tags.all %}
-                        '{{tag.tagname}}',
+                        '{{tag.tagname|escapejs}}',
                     {% endfor %}
                 ],
                 'tags': [
                     {% for tag in media.tags.all %}
-                        {'tagname': '{{tag.tagname}}', 'namespace': '{{tag.namespace}}'},
+                        {'tagname': '{{tag.tagname|escapejs}}', 'namespace': '{{tag.namespace|escapejs}}'},
                     {% endfor %}
                 ],
             },

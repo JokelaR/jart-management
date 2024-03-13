@@ -42,7 +42,7 @@
             {% else %}
                 <p class="unsupportedFiletypePlaceholder">Unsupported Filetype</p>
             {% endif %}
-                <span>
+                <span class="mediaDescription">
                     {% autoescape on %}
                     {% if media.title and media.title.strip %}<strong>{{media.title}}</strong>{% endif %}
                     {% if media.creator_tags%}
@@ -70,7 +70,7 @@
                     {% if media.tags%}
                     <div class="tagContainer">
                     {% for tag in media.tags.all %}
-                    <a data-tag-namespace="{{tag.namespace}}" class="tag" href="/tags/{{tag.namespace|default:"all"}}/{{tag.tagname}}" title="See entries for: {{tag.tagname}}">
+                    <a data-tag-namespace="{{tag.namespace}}" data-tag-tagname="{{tag.tagname}}" class="tag" href="/tags/{{tag.namespace|default:"all"}}/{{tag.tagname}}" title="{{tag.namespace}}:{{tag.tagname}}">
                         <div class="tagLabel">
                         {{tag.tagname}}
                         </div>

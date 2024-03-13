@@ -28,6 +28,11 @@
         max-height: 80vh;    
     }
 }
+
+:is(div.pswp__dynamic-caption, span.mediaDescription):has(.tagContainer > .tag[data-tag-tagname="spoiler description"]) > p:not(:hover) {
+    filter: blur(5px);
+}
+
 .album-image:link, .album-image:visited {
     color: white !important;
     text-decoration: none !important;
