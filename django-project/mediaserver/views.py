@@ -224,7 +224,16 @@ def update_gallery_title(request, gallery_id):
     gallery = Gallery.objects.get(id=gallery_id)
     gallery.title = request.body.decode()
     gallery.save()
-    return HttpResponse(f'Updated #{gallery_id} title')
+    return HttpResponse(f'{gallery.title}')
+
+@login_required
+@require_http_methods(["POST"])
+@permission_required('mediaserver.change_gallery')
+def update_gallery_visibility(request, gallery_id):
+    gallery = Gallery.objects.get(id=gallery_id)
+    gallery.visible = not gallery.visible
+    gallery.save()
+    return HttpResponse(f'{gallery.visible}')
 
 @login_required
 @require_http_methods(["POST"])

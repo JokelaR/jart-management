@@ -65,6 +65,8 @@ class Gallery(models.Model):
     created_date = models.DateTimeField("date created", auto_now_add=True)
     media_items = models.ManyToManyField(Media, through="GalleryOrder", related_name="media_gallery")
     category = models.CharField(max_length=64)
+    visible = models.BooleanField(default=False)
+
     def __str__(self):
         return self.title
     

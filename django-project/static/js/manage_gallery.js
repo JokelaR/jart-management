@@ -8,6 +8,7 @@ const editableTitleTemplate = document.getElementById('editable-title-template')
 const listContainer = document.getElementById('listContainer');
 const galleryTitleElement = document.getElementById('galleryTitle');
 const galleryCategorySelect = document.getElementById('galleryCategory');
+const galleryVisibilitySelect = document.getElementById('galleryVisibility');
 
 const allowedImageTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/apng', 'image/avif', 'image/gif']
 const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/ogg']
@@ -19,6 +20,7 @@ galleryCategorySelect.value = original_category;
 let currentCategory = galleryCategorySelect.value;
 
 galleryCategorySelect.addEventListener('change', update_category);
+galleryVisibilitySelect.addEventListener('change', update_visibility);
 
 media_items.forEach(media_item => {
     append_media_template(media_item['src'], media_item['title'], media_item['creator_tags'], media_item['tags'], media_item['description'], media_item['uploaderDescription'], media_item['loop'], media_item['uuid'], media_item['type'], 'saved');
@@ -179,6 +181,8 @@ function append_media_template(url, title, creator_tags, tags, description, extr
     template_clone.querySelector('.mediaElement').addEventListener('change', on_media_updated);
     template_clone.querySelector('.mediaElement').dataset.status = current_status;
     template_clone.querySelector('button[name="up"]').addEventListener('click', move_media_item_up);
+    template_clone.querySelector('.orderInput').value = listContainer.children.length + 1;
+    template_clone.querySelector('.orderInput').addEventListener('change', move_media_item);
     template_clone.querySelector('button[name="down"]').addEventListener('click', move_media_item_down);
     let form = template_clone.querySelector('form');
     form['title'].value = title;
@@ -210,17 +214,41 @@ function append_media_template(url, title, creator_tags, tags, description, extr
     order_changed = true;
 }
 
+function move_media_item(event) {
+    event.stopPropagation();
+    let media_element = event.target.closest('.mediaElement');
+    let media_list = media_element.parentNode;
+    let target = Math.max(parseInt(event.target.value), 0);
+    if (target > media_list.children.length) {
+        target = media_list.children.length - 1;
+    }
+    else if (target == 1) {
+        target = 0;
+    }
+    media_list.insertBefore(media_element, media_list.children[target]);
+    refresh_indeces();
+}
 function move_media_item_up(event) {
-    let media_element = event.target.parentElement.parentElement;
-    media_list = media_element.parentNode;
+    let media_element = event.target.closest('.mediaElement');
+    let media_list = media_element.parentNode;
     media_list.insertBefore(media_element, media_element.previousElementSibling);
     order_changed = true;
+    refresh_indeces();
 }
 function move_media_item_down(event) {
-    let media_element = event.target.parentElement.parentElement;
-    media_list = media_element.parentNode;
+    let media_element = event.target.closest('.mediaElement');
+    let media_list = media_element.parentNode;
     media_list.insertBefore(media_element, media_element.nextElementSibling.nextElementSibling);
     order_changed = true;
+    refresh_indeces();
+}
+
+function refresh_indeces() {
+    let elements = listContainer.querySelectorAll('.orderInput');
+    for (let index = 0; index < elements.length; index++) {
+        const element = elements[index];
+        element.value = index + 1;
+    }
 }
 
 function save_gallery() {
@@ -368,6 +396,18 @@ function update_category() {
             galleryCategorySelect.value = currentCategory;
         });
     }
+}
+
+function update_visibility() {
+    let visibility = galleryVisibilitySelect.value;
+    let request = new Request(`/modify/gallery/${gallery_id}/visibility`, {
+        method: "POST",
+        body: visibility,
+        headers: { 'X-CSRFToken': csrf_token }
+    });
+    fetch(request).then((response) => {
+        toastResult(response, 'Updated visibility!', 'Failed to update visibility');
+    });
 }
 
 function associate_media(uuid, order) {

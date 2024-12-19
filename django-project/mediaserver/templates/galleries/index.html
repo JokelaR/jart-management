@@ -14,7 +14,8 @@
         {% for category in category_list %}
         <h2>{{ category.grouper|underscore_to_space|title }}</h2>
         {% for gallery in category.list %}
-            <li>
+            {% if gallery.visible or perms.mediaserver.change_gallery %}
+            <li {% if not gallery.visible %}class="hidden"{% endif %}>
                 <span>
                     <a href="{% url 'gallery' gallery.id %}">{{ gallery.title }}</a>
                 {% if perms.mediaserver.change_gallery %}
@@ -27,6 +28,7 @@
                 {% endif %}
                 </span>
             </li>
+            {% endif %}
         {% endfor %}
         {% endfor %}
     </ul>
