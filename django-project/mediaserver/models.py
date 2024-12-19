@@ -37,7 +37,7 @@ class Tag(models.Model):
         ordering = ['namespace', 'tagname']
 
 class Media(models.Model):
-    file = models.FileField()
+    file = models.FileField(default='default.jpg')
     creator_tags = models.ManyToManyField(Tag, blank=True, related_name='creator_tags')
     title = models.CharField(max_length=256, blank=True)
     uploader = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -53,6 +53,11 @@ class Media(models.Model):
 
     def __str__(self):
         return f'{self.file.name} - {self.type} file by {self.creator_tags.first()}'
+    
+class EmbeddedMedia(Media):
+    url = models.URLField()
+    def __str__(self):
+        return f'{self.url} - {self.type} file by {self.creator_tags.first()}'
 
 class Gallery(models.Model):
     id = models.AutoField(primary_key=True)

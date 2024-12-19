@@ -1,9 +1,7 @@
 from django.urls import path, re_path
-from django.views.generic.base import RedirectView
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
-from allauth import urls
 
 urlpatterns = [
     path("", views.index, name="index"),
@@ -13,6 +11,7 @@ urlpatterns = [
     path("galleries/latest", views.latest_gallery, name="latest_gallery"),
     path("galleries/latest/<str:category>", views.latest_gallery_by_category, name="latest_gallery_by_category"),
     path("create/media", views.create_media, name="create_media"),
+    path("create/mediaEmbed", views.create_embedded_media, name="create_embedded_media"),
     path("create/gallery", views.create_gallery, name="create_gallery"),
     path("delete/gallery/<int:gallery_id>", views.delete_gallery, name="delete_gallery"),
     path("modify/media", views.modify_media, name="modify_media"),

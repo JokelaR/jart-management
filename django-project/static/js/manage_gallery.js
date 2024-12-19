@@ -1,4 +1,5 @@
 const addMediaButton = document.getElementById('addMedia');
+const addEmbedButton = document.getElementById('addEmbed');
 const mediaTemplate = document.getElementById('new-image-template');
 const tagTemplate = document.getElementById('tag-template');
 const autocompleteTemplate = document.getElementById('autocomplete-template');
@@ -74,7 +75,7 @@ addMediaButton.addEventListener("click", (event) => {
                     fd.append('type', file.type);
                     fd.append('width', videoElement.videoWidth);
                     fd.append('height', videoElement.videoHeight);
-                    fd.append('loop', false);                
+                    fd.append('loop', false);
                     let request = new Request('/create/media', { method: "POST", body: fd });
                     fetch(request).then((response) => { response.json().then((data) => {
                         toastResult(response, 'Created media', 'Failed to create media');
@@ -93,6 +94,33 @@ addMediaButton.addEventListener("click", (event) => {
         }
     }
     input.click();
+});
+
+addEmbedButton.addEventListener("click", (event) => {
+    let embed = window.prompt("Enter the YouTube url in the format https://www.youtube.com/watch?v=[ID], with nothing after the ID");
+    if(embed && embed != '' && embed.includes('https://www.youtube.com/watch?v=')) {
+        let fd = new FormData();
+        fd.append('csrfmiddlewaretoken', csrf_token);
+        fd.append('url', 'https://www.youtube-nocookie.com/embed/' + embed.substring(embed.indexOf('=') + 1));
+
+        fd.append('type', 'embed');
+        fd.append('width', 1280);
+        fd.append('height', 720);
+        fd.append('loop', false);
+
+
+        let request = new Request('/create/mediaEmbed', { method: "POST", body: fd });
+        fetch(request).then((response) => { response.json().then((data) => {
+            toastResult(response, 'Created embed', 'Failed to create embed');
+            if(data['url']) {
+                associate_media(data['uuid'], listContainer.children.length);
+                append_media_template(data['url'], '', '', '', '', '', false, data['uuid'], 'embed', 'changed');
+            }
+        })});
+    }
+    else {
+        toast('Invalid Youtube URL (we only support the https://www.youtube.com/watch?v=[ID] format right now)', 4000, 'error');
+    }
 });
 
 function delete_media_button(event) {
@@ -127,7 +155,11 @@ function delete_media_button(event) {
 function append_media_template(url, title, creator_tags, tags, description, extra_description, loop, uuid, type, current_status) {
     let template_clone = mediaTemplate.content.cloneNode(true);
     let new_node;
-    if(allowedImageTypes.includes(type)) {
+    if (type == 'embed') {
+        new_node = document.createElement('p');
+        new_node.textContent = '🔗';
+    }
+    else if(allowedImageTypes.includes(type)) {
         new_node = document.createElement('img');
         new_node.src = url;
     }

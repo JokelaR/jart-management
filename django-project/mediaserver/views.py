@@ -113,6 +113,23 @@ def create_media(request):
         return HttpResponse(json.dumps(response))
     return HttpResponse(status=400)
 
+
+@login_required
+@require_http_methods(['POST'])
+@permission_required('mediaserver.add_media')
+def create_embedded_media(request):
+    tempDict = request.POST.copy()
+    tempDict['uploader'] = request.user
+    form = NewEmbedForm(tempDict)
+    if form.is_valid():
+        created_media = form.save()
+        response = {
+            'url': created_media.url, 
+            'uuid': created_media.uuid.hex
+        }
+        return HttpResponse(json.dumps(response))
+    return HttpResponse(status=400)
+
 @login_required
 @require_http_methods(["DELETE", "POST"])
 @permission_required('mediaserver.change_media')
@@ -263,7 +280,7 @@ def auto_delete_file_on_delete(sender, instance: Media, **kwargs):
         print(f'removed {tag} while deleting {instance}')
         tag.count_tags()
 
-    if instance.file:
+    if instance.file and instance.type != 'embed':
         if os.path.isfile(instance.file.path):
             os.remove(instance.file.path)
 

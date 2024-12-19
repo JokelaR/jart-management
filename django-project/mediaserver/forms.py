@@ -1,10 +1,15 @@
 from django import forms
-from .models import Media, Tag
+from .models import Media, EmbeddedMedia
 
 class NewImageForm(forms.ModelForm):
     class Meta:
         model = Media
         fields = ['file', 'title', 'description', 'uploaderDescription', 'type', 'height', 'width', 'loop', 'uploader']
+
+class NewEmbedForm(forms.ModelForm):
+    class Meta:
+        model = EmbeddedMedia
+        fields = ['url', 'title', 'description', 'uploaderDescription', 'type', 'height', 'width', 'loop', 'uploader']
 
 class ImageMetadataForm(forms.Form):
     uuid = forms.UUIDField(required=True)

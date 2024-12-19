@@ -23,7 +23,22 @@
         <h2>{{ gallery.title }}</h2>
         {% for media in page_obj %}
             <div class="album-image">
-            {% if 'image/' in media.type %}
+            {% if 'embed' in media.type %}
+            <a href="{{ media.embeddedmedia.url }}"
+                data-pswp-width="{{media.width}}"
+                data-pswp-height="{{media.height}}"
+                data-pswp-embed="true"
+                target="_blank">
+                <iframe 
+                    src="{{ media.embeddedmedia.url }}" 
+                    width="100%" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    referrerpolicy="strict-origin-when-cross-origin" 
+                    allowfullscreen>
+                </iframe>
+            </a>
+            {% elif 'image/' in media.type %}
                 <a href="{{ media.file.url }}"
                     data-pswp-width="{{media.width}}"
                     data-pswp-height="{{media.height}}"
@@ -145,9 +160,13 @@
     lightbox.addFilter('itemData', (itemData, index) => {
         const videoSrc = itemData.element.dataset.pswpVideoSrc;
         const loopVideo = itemData.element.dataset.pswpVideoLoop;
+        const embed = itemData.element.dataset.pswpEmbed;
         if (videoSrc) {
             itemData.videoSrc = videoSrc;
             itemData.loopVideo = loopVideo;
+        }
+        if (embed) {
+            itemData.embed = embed;
         }
         return itemData;
     });
@@ -164,6 +183,16 @@
                 content.element.loop = (content.data.loopVideo == "True");
             }
             content.element.controls = true;
+        }
+        if (content.data.embed) {
+            e.preventDefault();
+            content.element = document.createElement('iframe');
+            content.element.src = content.data.src;
+            content.element.width = content.data.width;
+            content.element.height = content.data.height;
+            content.element.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+            content.element.referrerPolicy = 'strict-origin-when-cross-origin'
+            content.element.allowFullscreen = true;
         }
     });
 

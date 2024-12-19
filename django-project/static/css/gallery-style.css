@@ -27,6 +27,15 @@
         margin-bottom: 1rem;
         max-height: 80vh;    
     }
+    iframe {
+        aspect-ratio: 16 / 9;
+        border-radius: 0.25rem;
+    }
+}
+
+iframe {
+    border: none;
+    border-radius: 0.25rem;
 }
 
 :is(div.pswp__dynamic-caption, span.mediaDescription):has(.tagContainer > .tag[data-tag-tagname="spoiler description"]) > p:not(:hover) {
