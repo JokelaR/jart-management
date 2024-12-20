@@ -38,14 +38,14 @@ def gallery(request, gallery_id):
 
 @require_safe
 def latest_gallery(request):
-    gallery = Gallery.objects.order_by('-created_date').first()
+    gallery = Gallery.objects.filter(visible=True).order_by('-created_date').first()
     if gallery is not None:
         return HttpResponseRedirect(reverse("gallery", kwargs={'gallery_id':gallery.id}))
     else:
         return HttpResponseRedirect('/')
     
 def latest_gallery_by_category(request, category):
-    gallery = Gallery.objects.filter(category__iexact=category).order_by('-created_date').first()
+    gallery = Gallery.objects.filter(category__iexact=category, visible=True).order_by('-created_date').first()
     if gallery is not None:
         return HttpResponseRedirect(reverse("gallery", kwargs={'gallery_id':gallery.id}))
     else:
