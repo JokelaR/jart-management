@@ -43,7 +43,7 @@
                     data-pswp-width="{{media.width}}"
                     data-pswp-height="{{media.height}}"
                     target="_blank">
-                    <img src="{{ media.file.url }}" alt="{{media.title}}">
+                    <img src="{{ media.file.url }}" alt="{{media.title}}" loading="lazy">
                 </a>
             {% elif 'video/' in media.type %}
                 <a href="{{ media.file.url }}"
@@ -115,12 +115,14 @@
 
     const pixelatedStyle = document.getElementById('pixelatedStyle');
     const galleryElement = document.getElementById('galleryContainer');
+    const albumImages = galleryElement.querySelectorAll('.album-image');
 
     const lightbox = new PhotoSwipeLightbox({
         gallery: '#galleryContainer',
         children: '.album-image > a',
         pswpModule: PhotoSwipe,
         bgOpacity: 1,
+        clickToCloseNonZoomable: false,
         
         paddingFn: (viewportSize) => {
             return {
@@ -153,6 +155,12 @@
                 pixelatedStyle.disabled = !pixelatedStyle.disabled;
             }
         });
+    });
+        
+    lightbox.on('closingAnimationEnd', () => {
+        let open_index = lightbox.pswp.currSlide.index;
+        console.log(open_index);
+        albumImages[open_index].scrollIntoView({behavior: "smooth", block: "end"});
     });
 
     lightbox.init();
