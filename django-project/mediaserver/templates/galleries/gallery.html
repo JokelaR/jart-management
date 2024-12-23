@@ -43,7 +43,7 @@
                     data-pswp-width="{{media.width}}"
                     data-pswp-height="{{media.height}}"
                     target="_blank">
-                    <img src="{{ media.file.url }}" alt="{{media.title}}" loading="lazy">
+                    <img src="{{ media.file.url }}" alt="{{media.title}}" {% image_size media.width media.height %} loading="lazy">
                 </a>
             {% elif 'video/' in media.type %}
                 <a href="{{ media.file.url }}"
