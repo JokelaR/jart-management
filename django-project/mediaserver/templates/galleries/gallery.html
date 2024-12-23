@@ -6,8 +6,8 @@
 
 {% block page-style %}
 <link rel="stylesheet" href="{% static 'gallery-style.css' %}">
-<link rel="stylesheet" href="{% static '/photoswipe/photoswipe.css' %}">
-<link rel="stylesheet" href="{% static '/photoswipe/photoswipe-dynamic-caption-plugin.css' %}">
+<link rel="stylesheet" href="{% static 'photoswipe/photoswipe.css' %}">
+<link rel="stylesheet" href="{% static 'photoswipe/photoswipe-dynamic-caption-plugin.css' %}">
 <style id="pixelatedStyle" disabled="false">
     .pswp__img {
         /*Browsers don't seem to respect disabled="true" on page load
@@ -109,9 +109,9 @@
 
 {% block after-body %}
 <script type="module">
-    import PhotoSwipeLightbox from '{% static "/photoswipe/photoswipe-lightbox.esm.js" %}';
-    import PhotoSwipeDynamicCaption from '{% static "/photoswipe/photoswipe-dynamic-caption-plugin.esm.js" %}'
-    import PhotoSwipe from '{% static "/photoswipe/photoswipe.esm.js" %}';
+    import PhotoSwipeLightbox from '{% static "photoswipe/photoswipe-lightbox.esm.js" %}';
+    import PhotoSwipeDynamicCaption from '{% static "photoswipe/photoswipe-dynamic-caption-plugin.esm.js" %}'
+    import PhotoSwipe from '{% static "photoswipe/photoswipe.esm.js" %}';
 
     const pixelatedStyle = document.getElementById('pixelatedStyle');
     const galleryElement = document.getElementById('galleryContainer');

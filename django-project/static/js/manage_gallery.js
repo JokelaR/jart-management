@@ -166,6 +166,7 @@ function append_media_template(url, title, creator_tags, tags, description, extr
     else if(allowedImageTypes.includes(type)) {
         new_node = document.createElement('img');
         new_node.src = url;
+        new_node.loading = 'lazy';
     }
     else if(allowedVideoTypes.includes(type)) {
         new_node = document.createElement('video');
