@@ -13,6 +13,8 @@ const galleryVisibilitySelect = document.getElementById('galleryVisibility');
 const allowedImageTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/apng', 'image/avif', 'image/gif']
 const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/ogg']
 
+const localStorage = window.localStorage;
+
 let order_changed = false;
 let items_changed = false;
 
@@ -184,6 +186,7 @@ function append_media_template(url, title, creator_tags, tags, description, extr
     template_clone.querySelector('.orderInput').value = listContainer.children.length + 1;
     template_clone.querySelector('.orderInput').addEventListener('change', move_media_item);
     template_clone.querySelector('button[name="down"]').addEventListener('click', move_media_item_down);
+    template_clone.querySelector('button[name="collapse"]').addEventListener('click', collapse_media);
     let form = template_clone.querySelector('form');
     form['title'].value = title;
 
@@ -210,8 +213,27 @@ function append_media_template(url, title, creator_tags, tags, description, extr
     form['uuid'].value = uuid;
     form['delete'].addEventListener('click', delete_media_button);
     form['loop'].checked = (loop == true || loop == 'True') 
+
+    if (localStorage.getItem(`media_${uuid}_collapsed`) == 'true') {
+        template_clone.querySelector('.mediaElement').classList.add('collapsed');
+    }
+
     listContainer.append(template_clone);
     order_changed = true;
+}
+
+function collapse_media(event) {
+    let media_element = event.target.closest('.mediaElement');
+
+    let id = media_element.querySelector('form')['uuid'].value;
+    if (!media_element.classList.contains('collapsed')) {
+        localStorage.setItem(`media_${id}_collapsed`, 'true');
+    }
+    else {
+        localStorage.removeItem(`media_${id}_collapsed`);
+    }
+    
+    media_element.classList.toggle('collapsed');
 }
 
 function move_media_item(event) {

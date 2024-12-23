@@ -5,20 +5,103 @@
     justify-content: center;
     gap: 1rem;
 }
+.listContainer {
+    counter-reset: index;
+}
 .mediaElement {
     padding: 1rem;
+    padding-top: 2rem;
     margin: 1rem 2rem;
     border: 2px solid black;
     display: flex;
     counter-increment: index;
     position: relative;
+    gap: 1rem;
 
     form {
         display: flex;
         flex-direction:row;
+        gap: inherit;
         width:100%;
     }
 }
+.mediaHeader {
+    padding: 0px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    border-bottom: dotted 1px white;
+    display: flex;
+    justify-content: space-between;
+
+    .collapseButton {
+        flex-grow: 1;
+        text-align: end;
+        border: none;
+        background-color: transparent;
+        color: white;
+        cursor: pointer;
+    }
+    .collapseButton:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    .collapseButton::after {
+        content: "▲"
+    }
+}
+.mediaHeader::before {
+    content: counter(index);
+    padding: 0.5rem;
+}
+.mediaElement.collapsed {
+    .dataContainer {
+        font-size: 0.8rem;
+        pointer-events: none;
+
+        > div {
+            display: flex;
+            flex-direction: row;
+            gap: 0.5em;
+            height: 1em;
+            
+            label::after {
+                content: ": ";
+            }
+
+            input, textarea, .tagInput {
+                background: none;
+                color: white;
+                border: none;
+                flex-grow: 1;
+                height: 1em;
+                resize: none;
+            }    
+        }
+        .tag {
+            padding: 0px;
+            height: 80%;
+            font-size: 80%;
+            margin: 0px;
+
+            .tagLabel {
+                padding: 0px;
+                margin: 0px;
+            }
+        }
+    }
+    .imageContainer > *:not(img, p, video) {
+        display: none;
+    }
+    .imageContainer > *:is(img, p, video) {
+        width: 64px;
+        height: 64px;
+    }
+    .collapseButton::after {
+        content: "▼"
+    }
+}
+
 .mediaElement[data-status='changed'] { border-color: red; }
 .mediaElement[data-status='saving'] { border-color: yellow; }
 .mediaElement[data-status='saved'] { border-color: green; }
@@ -39,22 +122,12 @@
     display: none;
 }
 
-.listContainer {
-    counter-reset: index;
-}
-.mediaElement::before {
-    content: counter(index);
-    padding: 0.5rem;
-    position: absolute;
-    left: 0;
-    top: 0;
-}
 
 .imageContainer {
     display:flex;
     flex-direction: column;
     align-items: center;
-    padding: 1rem;
+    padding-top: 1rem;
 
     img, input, button {
         margin-bottom: 0.5rem;;
@@ -72,7 +145,7 @@
 }
 
 .dataContainer {
-    padding: 1rem;
+    padding-top: 1rem;
     flex-grow: 1;
 
     > div {
