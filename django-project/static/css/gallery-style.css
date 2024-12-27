@@ -15,18 +15,19 @@
     scroll-margin-bottom: 1rem;
     
     img {
+        height:auto;
         border-radius: 0.25rem;
         max-width: 100%;
         display: block;
         margin: auto;
-        margin-bottom: 1rem;    
+        margin-bottom: 1rem;
     }
     video {
         display: block;
         max-width: 100%;
         margin: auto;
         margin-bottom: 1rem;
-        max-height: 80vh;    
+        max-height: 80vh;
     }
     iframe {
         aspect-ratio: 16 / 9;
