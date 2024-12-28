@@ -162,6 +162,7 @@ textarea {
     display: flex;
     background-color: white;
     position: relative;
+    flex-wrap: wrap;
 
     input {
         border: none;

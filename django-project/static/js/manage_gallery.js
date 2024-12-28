@@ -313,21 +313,25 @@ function save_gallery() {
 
         fd.append('tags', JSON.stringify(tags));
         fd.append('creator_tags', JSON.stringify(creator_tags));
-
-        let request = new Request('/modify/media', { 
-            method: "POST", 
-            body: fd, 
-            headers: { 'X-CSRFToken': csrf_token }
-        });
-        fetch(request).then((response) => {
-            if(response.status == 200) {
-                media_element.dataset.status = 'saved';
-            }
-            else {
-                media_element.dataset.status = 'changed';
-            }
-            toastResult(response, 'Saved media changes!', 'Failed to save media changes');
-        });
+        try {
+            let request = new Request('/modify/media', { 
+                method: "POST", 
+                body: fd, 
+                headers: { 'X-CSRFToken': csrf_token }
+            });
+            fetch(request).then((response) => {
+                if(response.status == 200) {
+                    media_element.dataset.status = 'saved';
+                }
+                else {
+                    media_element.dataset.status = 'changed';
+                }
+                toastResult(response, 'Saved media changes!', 'Failed to save media changes');
+            });
+        } catch (error) {
+            media_element.dataset.status = 'changed';
+            toast('Unknown network failure when saving media.', 4000, 'error');
+        }
     }
     if (order_changed) {
         update_gallery_order();
