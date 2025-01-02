@@ -24,7 +24,7 @@
         {% for media in page_obj %}
             <div class="album-image">
             {% if 'embed' in media.type %}
-            <a href="{{ media.embeddedmedia.url }}"
+            <a href="{{ media.embeddedmedia.url }}?rel=0"
                 data-pswp-width="{{media.width}}"
                 data-pswp-height="{{media.height}}"
                 data-pswp-embed="true"
