@@ -49,8 +49,10 @@ iframe {
     color: white !important;
     text-decoration: none !important;
 }
-.pswp__bg {
+.pswp {
     backdrop-filter: blur(1rem) brightness(30%);
+}
+.pswp__bg {
     background: none !important;
 }
 .pswp__img {
