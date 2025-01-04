@@ -9,6 +9,8 @@ class Tag(models.Model):
     namespace = models.CharField(max_length=256, blank=True)
     displayName = models.CharField(max_length=265, blank=True)
 
+    description = models.TextField(blank=True)
+
     tag_count = models.IntegerField(default=0)
 
     def count_tags(self):

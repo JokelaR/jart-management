@@ -1,5 +1,15 @@
 {% extends "galleries/gallery.html" %}
 
+{% block title %}Janart - Tag: {{tag.tagname}}{% endblock title %}
+{% block embed-title %}Janart | Tag: {{tag.namespace}}:{{tag.tagname}}{% endblock embed-title %}
+{% block page-description %}{{tag.tag_count}} fanart tagged with {{tag.namespace}}:{{tag.tagname}}{% endblock %}
+
+{% block gallery-title %}
+<h2>Tag: {{tag.namespace}}:{{tag.tagname}}</h2>
+{{ tag.description|linebreaksbr|urlize }}
+<p>Seen {{tag.tag_count}} time{{ tag.tag_count|pluralize }}</p>
+{% endblock gallery-title %}
+
 {% block description_end %}
 <p>Originally seen at <a href="/gallery/{{media.media_gallery.first.id}}">{{media.media_gallery.first.title}}</a></p>
 {% endblock description_end %}

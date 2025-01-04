@@ -303,6 +303,11 @@ class CreatorTagListView(ListView):
         queryset = Media.objects.filter(creator_tags__tagname__iexact=key).order_by('uploaded_date').distinct().reverse()
         return queryset
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag'] = Tag.objects.get(namespace='creator', tagname=self.kwargs.get('tag'))
+        return context
+    
 class TagListView(ListView):
     model = Media
     paginate_by = 10
@@ -317,3 +322,11 @@ class TagListView(ListView):
             queryset = Media.objects.filter(tags__namespace__iexact=namespace).filter(tags__tagname__iexact=tag).order_by('uploaded_date').distinct().reverse()
         print(queryset)
         return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.kwargs.get('namespace') == 'all':
+            context['tag'] = Tag.objects.get(tagname=self.kwargs.get('tag'))
+        else:
+            context['tag'] = Tag.objects.get(namespace=self.kwargs.get('namespace'), tagname=self.kwargs.get('tag'))
+        return context
