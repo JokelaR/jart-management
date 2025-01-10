@@ -297,6 +297,7 @@ def auto_delete_file_on_delete(sender, instance: Media, **kwargs):
 class CreatorTagListView(ListView):
     model = Media
     paginate_by = 10
+    allow_empty = False
 
     def get_queryset(self):
         key = self.kwargs.get('tag', '')
@@ -311,6 +312,7 @@ class CreatorTagListView(ListView):
 class TagListView(ListView):
     model = Media
     paginate_by = 10
+    allow_empty = False
 
     def get_queryset(self):
         tag = self.kwargs.get('tag', '')
