@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Janart - All Tags{% endblock title %}
+{% block page-description %}List of all of the tags on Janart{% endblock %}
+{% block page-style %}
+<style>
+    main {
+        max-width: 1000px;
+        margin: 1rem auto;
+        box-shadow: 0rem 0 0.5rem rgba(0, 0, 0, 0.75);
+        padding: 2rem;
+        border-radius: 1rem;
+        background-color: rgba(0,0,0, 0.25);
+        font-size: 1.2rem;
+        h1 {
+            margin-top: 0;
+        }
+    }
+    #tagContainer {
+        display: flex;
+        flex-wrap: wrap;
+    }
+</style>
+{% endblock page-style %}
+
+{% block body-content %}
+<main>
+    <h1>All Tags</h1>
+    <div id="tagContainer">
+    {% for tag in tags %}
+        {% if tag.namespace == "creator" %}
+        <a data-tag-namespace="creator" data-tag-tagname="{{tag.tagname}}" class="tag" href="/creator/{{tag.tagname}}" title="Creator: {{tag.tagname}}">
+        {% else %}
+        <a data-tag-namespace="{{tag.namespace}}" data-tag-tagname="{{tag.tagname}}" class="tag" href="/tags/{{tag.namespace|default:"all"}}/{{tag.tagname}}" title="{{tag.namespace}}:{{tag.tagname}}">
+        {% endif %}
+            <div class="tagLabel">
+            {{tag.tagname}}
+            </div>
+            <div class="tagCount">{{tag.tag_count}}</div>
+        </a>
+    {% endfor %}
+    </div>
+</main>
+{% endblock body-content %}

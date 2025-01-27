@@ -23,6 +23,7 @@ urlpatterns = [
 
     path("creator/<str:tag>", views.CreatorTagListView.as_view(template_name="galleries/tag_list.html"), name="media_by_creator_tag"),
     path("tags/<str:namespace>/<str:tag>", views.TagListView.as_view(template_name="galleries/tag_list.html"), name="media_by_tag"),
+    path("tags/", views.all_tags, name="all_tags"),
 
     path("tags/autocomplete/", views.tags_by_startswith, name="tags_by_startswith"),
 

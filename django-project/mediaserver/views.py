@@ -43,6 +43,11 @@ def latest_gallery(request):
         return HttpResponseRedirect(reverse("gallery", kwargs={'gallery_id':gallery.id}))
     else:
         return HttpResponseRedirect('/')
+
+@require_safe
+def all_tags(request):
+    tags = Tag.objects.all()
+    return render(request, "tags.html", {'tags': tags})
     
 def latest_gallery_by_category(request, category):
     gallery = Gallery.objects.filter(category__iexact=category, visible=True).order_by('-created_date').first()
