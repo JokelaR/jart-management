@@ -13,7 +13,8 @@
     border: solid 1px #360000;
     box-shadow: 0rem 0 0.5rem rgba(0, 0, 0, 0.55);
     scroll-margin-bottom: 1rem;
-    
+    overflow: hidden;
+
     img {
         height:auto;
         border-radius: 0.25rem;
@@ -41,12 +42,26 @@ iframe {
     border-radius: 0.25rem;
 }
 
-:is(div.pswp__dynamic-caption, span.mediaDescription):has(.tagContainer > .tag[data-tag-tagname="spoiler description"]) > p:not(:hover) {
+:is(div.pswp__dynamic-caption, span.mediaDescription):has(.tagContainer > .tag[data-tag-tagname="Spoiler Description"]) > p:not(:hover) {
     filter: blur(5px);
 }
-.tag[data-tag-tagname="spoiler description"] .tagCount {
+div.album-image:has(.tagContainer > .tag[data-tag-tagname="Sex Warning"]) > a:not(:hover)  {
+    filter: blur(16px);
+}
+div.pswp__item:has(.tagContainer > .tag[data-tag-tagname="Sex Warning"]) > .pswp__zoom-wrap:not(:hover) {
+    filter: blur(16px);
+}
+
+.tag[data-tag-tagname="Spoiler Description"] .tagCount {
     display: none;
 }
+.tag[data-tag-tagname="Sex Warning"] {
+    --tagcolor: rgb(200, 200, 0);
+    
+    ::before { content: "🚨"; }
+    .tagCount { display: none; }
+}
+
 
 .album-image:link, .album-image:visited {
     color: white !important;
