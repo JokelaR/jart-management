@@ -167,6 +167,7 @@ function append_media_template(url, title, creator_tags, tags, description, extr
         new_node = document.createElement('img');
         new_node.src = url;
         new_node.loading = 'lazy';
+        new_node.title = url.replace('/media/', '');
     }
     else if(allowedVideoTypes.includes(type)) {
         new_node = document.createElement('video');
@@ -495,7 +496,12 @@ function attach_autocomplete(element, target_namespace) {
             for (let i = 0; i < data.tags.length; i++) {
                 const tag = data.tags[i];
                 let suggestion = document.createElement('li');
-                suggestion.textContent = tag.tagname;
+                if (namespace == '') {
+                    suggestion.textContent = `${tag.namespace}:${tag.tagname}`;
+                }
+                else {
+                    suggestion.textContent = tag.tagname;
+                }
                 suggestion.addEventListener('click', function() {
                     add_tag(event.target, tag.namespace, tag.tagname);
                     event.target.value = '';

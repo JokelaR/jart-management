@@ -61,9 +61,13 @@ def tag_list_by_namespace(request, namespace):
     return JsonResponse([tag.tagname for tag in tags])
 
 @require_http_methods(['POST'])
+@permission_required('mediaserver.change_media')
 def tags_by_startswith(request):
     data = json.loads(request.body.decode())
-    tags = Tag.objects.order_by('tag_count').filter(namespace__iexact=data['namespace'], tagname__istartswith=data['incomplete_tag']).reverse()
+    if data['namespace'] == "":
+        tags = Tag.objects.order_by('tag_count').filter(tagname__istartswith=data['incomplete_tag']).reverse()[:10]
+    else:
+        tags = Tag.objects.order_by('tag_count').filter(namespace__iexact=data['namespace'], tagname__istartswith=data['incomplete_tag']).reverse()[:10]
     return JsonResponse({'tags': [{'namespace': tag.namespace, 'tagname': tag.tagname} for tag in tags]}, safe=False)
 
 @login_required
