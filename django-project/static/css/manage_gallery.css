@@ -207,6 +207,10 @@ textarea {
     }
 }
 
+.tag:not(.collapsed) {
+    font-size: initial;
+}
+
 .tag:hover {
     text-decoration: line-through;
     cursor: pointer;

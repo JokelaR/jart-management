@@ -11,7 +11,10 @@ a {
     color: #ffb4b4;
 }
 
-.tag[data-tag-namespace="creator"] { --tagcolor: rgb(187, 58, 58); }
+.tag[data-tag-namespace="creator"] { 
+    --tagcolor: rgb(187, 58, 58);
+    font-size: 1.5rem;
+ }
 .tag[data-tag-namespace="game"] { --tagcolor: rgb(159, 125, 255); }
 .tag[data-tag-namespace="anime"] { --tagcolor: rgb(220, 125, 255); }
 .tag[data-tag-namespace="chan"] { --tagcolor: rgb(78, 203, 150);}

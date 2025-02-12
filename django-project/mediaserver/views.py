@@ -330,7 +330,7 @@ class TagListView(ListView):
         if namespace == 'all':
             queryset = Media.objects.filter(tags__tagname__iexact=tag).order_by('uploaded_date').distinct().reverse()
         else:
-            queryset = Media.objects.filter(tags__namespace__iexact=namespace).filter(tags__tagname__iexact=tag).order_by('uploaded_date').distinct().reverse()
+            queryset = Media.objects.filter(tags__namespace__iexact=namespace, tags__tagname__iexact=tag).order_by('uploaded_date').distinct().reverse()
         print(queryset)
         return queryset
     
