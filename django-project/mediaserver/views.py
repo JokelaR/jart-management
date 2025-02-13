@@ -168,7 +168,11 @@ def modify_media(request: HttpRequest):
             return HttpResponse(status=400)
     elif request.method == "DELETE":
         if request.body:
-            Media.objects.get(uuid=request.body.decode()).delete()
+            media = Media.objects.get(uuid=request.body.decode())
+            for tag in media.tags.all():
+                media.tags.remove(tag)
+                tag.count_tags()
+            media.delete()
             return HttpResponse(f'Deleted {request.body}')
         else:
             return HttpResponse(status=400)
@@ -192,7 +196,7 @@ def diff_tags(media: Media, current_tags: list[dict[str, str]], new_tags: list[d
                     added_tag = Tag.objects.create(namespace=tag['namespace'], tagname=tag['tagname'])
                 media.tags.add(added_tag)
                 print(f'added {added_tag} to {media}')
-                added_tag.count_tags()
+                added_tag.count_uses()
 
 def diff_creator_tags(media: Media, current_tags: list[dict[str, str]], new_tags: list[dict[str, str]]):
     if(current_tags != new_tags):
@@ -211,7 +215,7 @@ def diff_creator_tags(media: Media, current_tags: list[dict[str, str]], new_tags
                     added_tag = Tag.objects.create(namespace='creator', tagname=tag['tagname'])
                 media.creator_tags.add(added_tag)
                 print(f'added {added_tag} to {media}')
-                added_tag.count_tags()
+                added_tag.count_uses()
 
 @login_required
 @require_http_methods(["POST"])

@@ -13,7 +13,7 @@ class Tag(models.Model):
 
     tag_count = models.IntegerField(default=0)
 
-    def count_tags(self):
+    def count_uses(self):
         self.tag_count = self.tags.count() + self.creator_tags.count()
         print(f'{self.namespace}:{self.tagname}, {self.tag_count} instances')
         self.save()
@@ -31,6 +31,11 @@ class Tag(models.Model):
             counter += 1
             tag.delete()
         print(f"Deleted {counter} orphaned tags")
+    
+    @staticmethod
+    def count_tags():
+        for tag in Tag.objects.all():
+            tag.count_uses()
 
     def __str__(self):
         return f'{self.namespace}:{self.tagname}'
