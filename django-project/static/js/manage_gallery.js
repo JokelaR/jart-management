@@ -9,6 +9,7 @@ const listContainer = document.getElementById('listContainer');
 const galleryTitleElement = document.getElementById('galleryTitle');
 const galleryCategorySelect = document.getElementById('galleryCategory');
 const galleryVisibilitySelect = document.getElementById('galleryVisibility');
+const galleryDateElement = document.getElementById('galleryDate');
 
 const allowedImageTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/apng', 'image/avif', 'image/gif']
 const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/ogg']
@@ -23,6 +24,7 @@ let currentCategory = galleryCategorySelect.value;
 
 galleryCategorySelect.addEventListener('change', update_category);
 galleryVisibilitySelect.addEventListener('change', update_visibility);
+galleryDateElement.addEventListener('change', update_date);
 
 media_items.forEach(media_item => {
     append_media_template(media_item['src'], media_item['title'], media_item['creator_tags'], media_item['tags'], media_item['description'], media_item['uploaderDescription'], media_item['loop'], media_item['uuid'], media_item['type'], 'saved');
@@ -435,6 +437,18 @@ function update_visibility() {
     });
     fetch(request).then((response) => {
         toastResult(response, 'Updated visibility!', 'Failed to update visibility');
+    });
+}
+
+function update_date() {
+    let date = galleryDateElement.value;
+    let request = new Request(`/modify/gallery/${gallery_id}/date`, {
+        method: "POST",
+        body: date,
+        headers: { 'X-CSRFToken': csrf_token }
+    });
+    fetch(request).then((response) => {
+        toastResult(response, 'Updated date!', 'Failed to update date');
     });
 }
 

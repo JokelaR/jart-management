@@ -11,6 +11,7 @@ from django.db.models.signals import post_delete
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 import os, json
+from datetime import datetime
 # Create your views here.
 @require_safe
 def index(request):
@@ -103,7 +104,6 @@ def edit_gallery(request, gallery_id):
     gallery = get_object_or_404(Gallery, pk=gallery_id)
     media_items = gallery.media_items.order_by('galleryorder')
     categories = Gallery.objects.all().distinct('category').values_list('category', flat=True)
-    print(categories)
     return render(request, "galleries/manage_gallery.html", {'gallery': gallery, 'media_items': media_items, 'categories': categories})
 
 @login_required
@@ -251,6 +251,15 @@ def update_gallery_visibility(request, gallery_id):
 @login_required
 @require_http_methods(["POST"])
 @permission_required('mediaserver.change_gallery')
+def update_gallery_date(request, gallery_id):
+    gallery = Gallery.objects.get(id=gallery_id)
+    gallery.created_date = datetime.fromisoformat(f'{request.body.decode()}T00:00:00Z')
+    gallery.save()
+    return HttpResponse(f'{gallery.created_date}')
+
+@login_required
+@require_http_methods(["POST"])
+@permission_required('mediaserver.change_gallery')
 def update_gallery_category(request, gallery_id):
     gallery = Gallery.objects.get(id=gallery_id)
     gallery.category = request.body.decode()
@@ -335,7 +344,6 @@ class TagListView(ListView):
             queryset = Media.objects.filter(tags__tagname__iexact=tag).order_by('uploaded_date').distinct().reverse()
         else:
             queryset = Media.objects.filter(tags__namespace__iexact=namespace, tags__tagname__iexact=tag).order_by('uploaded_date').distinct().reverse()
-        print(queryset)
         return queryset
     
     def get_context_data(self, **kwargs):

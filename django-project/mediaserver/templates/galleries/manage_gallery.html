@@ -27,6 +27,10 @@
         <label for="visible">Visible</label>
         <input type="checkbox" name="visible" id="galleryVisibility" {% if gallery.visible %}checked{% endif %}>    
     </div>
+    <div>
+        <label for="gallery_date">Date</label>
+        <input type="date" name="gallery_date" id="galleryDate" value="{{ gallery.created_date|date:'Y-m-d' }}">
+    </div>
 </div>
 <br>
 

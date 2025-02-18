@@ -18,6 +18,7 @@ urlpatterns = [
     path("modify/gallery/<int:gallery_id>/media", views.update_gallery_media, name="update_gallery_media"),
     path("modify/gallery/<int:gallery_id>/title", views.update_gallery_title, name="update_gallery_title"),
     path("modify/gallery/<int:gallery_id>/visibility", views.update_gallery_visibility, name="update_gallery_visibility"),
+    path("modify/gallery/<int:gallery_id>/date", views.update_gallery_date, name="update_gallery_date"),
     path("modify/gallery/<int:gallery_id>/category", views.update_gallery_category, name="update_gallery_category"),
     path("modify/gallery/<int:gallery_id>/associate_media", views.associate_media, name="associate_media"),
 
