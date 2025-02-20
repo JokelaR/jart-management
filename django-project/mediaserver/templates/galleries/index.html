@@ -18,6 +18,7 @@
             <li {% if not gallery.visible %}class="hidden"{% endif %}>
                 <span>
                     <a href="{% url 'gallery' gallery.id %}">{{ gallery.title }}</a>
+                    <span class="gallery-date">{{ gallery.created_date|date:"jS F, Y" }}</span>
                 {% if perms.mediaserver.change_gallery %}
                     <a href="{% url 'edit_gallery' gallery.id %}">edit</a> {% if perms.mediaserver.delete_gallery %} | 
                     <form action="{% url 'delete_gallery' gallery_id=gallery.id%}", method="POST">

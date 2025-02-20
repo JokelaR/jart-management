@@ -20,6 +20,7 @@ li {
     span {
         display: flex;
         justify-content: end;
+        align-items: center;
         
         *:first-child { margin-right: auto; }
         * {margin: 0 0.25rem; }
@@ -28,6 +29,12 @@ li {
         }
     }
 }
+.gallery-date {
+    font-size: 0.8em;
+    color: rgba(255, 255, 255, 0.75);
+    font-style: italic;
+}
+
 li:nth-child(even) {
     background-color: rgba(255, 255, 255, 0.1)
 }
