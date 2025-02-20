@@ -4,6 +4,16 @@
     max-width: 1000px;
     margin: auto;
 }
+#titleContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-style: italic;
+
+    p {
+        color: rgba(255, 255, 255, 0.8);
+    }
+}
 .album-image {
     max-width:100%;
     margin-bottom: 1rem;

@@ -33,6 +33,7 @@ a {
     }
     .tagCount {
         padding: 0.25rem;
+        border-left: solid 1px;
         display: inline-block;
         background-color: color-mix(in srgb, var(--tagcolor) 30%, black);
     }

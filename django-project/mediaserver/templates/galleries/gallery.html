@@ -21,7 +21,10 @@
 <main>
     <div id="galleryContainer">
         {% block gallery-title %}
-        <h2>{{ gallery.title }}</h2>
+        <div id="titleContainer">
+            <h2>{{ gallery.title }}{% if perms.mediaserver.change_gallery %}<span>&nbsp[<a href="{% url 'edit_gallery' gallery.id %}">Edit</a>]</span>{% endif %}</h2>
+            <p>{{ gallery.created_date|date:"jS F, Y" }}</p>
+        </div>
         {% endblock gallery-title %}
         {% for media in page_obj %}
             <div class="album-image">
