@@ -30,6 +30,74 @@ media_items.forEach(media_item => {
     append_media_template(media_item['src'], media_item['title'], media_item['creator_tags'], media_item['tags'], media_item['description'], media_item['uploaderDescription'], media_item['loop'], media_item['uuid'], media_item['type'], 'saved');
 });
 
+function prepareMedia(file) {
+    return new Promise((resolve, reject) => {
+        if (allowedImageTypes.includes(file.type)) {
+            let fileurl = URL.createObjectURL(file)
+            let img = new Image();
+            img.onload = () => {
+                if (img.width == 0 || img.height == 0) {
+                    toast(`${file.name} has a zero for height or width! Screenshot this for Bulder`, -1, 'warn');
+                    reject();
+                }
+                let height = img.height;
+                let width = img.width;
+
+                URL.revokeObjectURL(fileurl);
+                console.log('Resolved', file.name);
+                resolve({'file': file, 'height': height, 'width': width, 'type': file.type});
+            }
+            img.src = fileurl;
+        }
+        else if (allowedVideoTypes.includes(file.type)) {
+            let fileurl = URL.createObjectURL(file)
+            let videoElement = document.createElement('video');
+            videoElement.preload = 'metadata';
+            videoElement.onloadedmetadata = function() {
+                if(videoElement.videoWidth == 0 || videoElement.videoHeight == 0) {
+                    toast(`${file.name} has a zero for height or width! Screenshot this for Bulder`, -1, 'warn');
+                }
+                let height = videoElement.videoHeight;
+                let width = videoElement.videoWidth;
+
+                URL.revokeObjectURL(fileurl);
+                console.log('Resolved', file.name);
+                resolve({'file': file, 'height': height, 'width': width, 'type': file.type});
+            }
+            videoElement.src = fileurl;
+        }
+        else {
+            toast(`${file.type} is not a supported file type`, 4000, 'error');
+        }
+    });
+}
+
+async function createMedia(mediaObject) {
+    let fd = new FormData();
+    fd.append('csrfmiddlewaretoken', csrf_token);
+
+    fd.append('file', mediaObject.file);
+    fd.append('type', mediaObject.type);
+    fd.append('width', mediaObject.width);
+    fd.append('height', mediaObject.height);
+    fd.append('loop', false);
+
+    let request = new Request('/create/media', { method: "POST", body: fd });
+    return new Promise((resolve, reject) => {
+        fetch(request).then((response) => { response.json().then((data) => {
+            if(data['url']) {
+                console.log('Created', data['url']);
+                resolve({'uuid': data['uuid'], 'url': data['url'], 'type': mediaObject.type});
+            }
+            else {
+                reject(mediaObject.file.name);
+            }
+        })});
+    });
+}
+
+
+
 //Add New Media
 addMediaButton.addEventListener("click", (event) => {
     let input = document.createElement('input');
@@ -40,64 +108,40 @@ addMediaButton.addEventListener("click", (event) => {
     fd.append('csrfmiddlewaretoken', csrf_token);
 
     input.onchange = (e) => {
+        let filePromises = [];
+        filePromises.length = e.target.files.length;
+
         for (let index = 0; index < e.target.files.length; index++) {
             const file = e.target.files[index];
-            let fileurl = URL.createObjectURL(file)
-            if(allowedImageTypes.includes(file.type)) {
-                let img = new Image;
-                img.onload = function() {
-                    if(img.width == 0 || img.height == 0) {
-                        toast(`${file.name} has a zero for height or width! Screenshot this for Bulder`, -1, 'warn');
-                    }
-    
-                    fd.append('file', file);
-                    fd.append('type', file.type);
-                    fd.append('width', img.width);
-                    fd.append('height', img.height);
-                    fd.append('loop', false);
-    
-                    let request = new Request('/create/media', { method: "POST", body: fd });
-                    fetch(request).then((response) => { response.json().then((data) => {
-                        toastResult(response, 'Created media', 'Failed to create media');
-                        if(data['url']) {
-                            associate_media(data['uuid'], listContainer.children.length);
-                            append_media_template(mediaPath + data['url'], '', '', '', '', '', false, data['uuid'], file.type, 'changed');
-                        }
-                        URL.revokeObjectURL(fileurl);
-                    })});
-                }
-                img.src = fileurl;
-            }
-            else if(allowedVideoTypes.includes(file.type)) {
-                let videoElement = document.createElement('video');
-                videoElement.preload = 'metadata';
-                videoElement.src = fileurl;
-                videoElement.onloadedmetadata = function() {
-                    if(videoElement.videoWidth == 0 || videoElement.videoHeight == 0) {
-                        toast(`${file.name} has a zero for height or width! Screenshot this for Bulder`, -1, 'warn');
-                    }
-    
-                    fd.append('file', file);
-                    fd.append('type', file.type);
-                    fd.append('width', videoElement.videoWidth);
-                    fd.append('height', videoElement.videoHeight);
-                    fd.append('loop', false);
-                    let request = new Request('/create/media', { method: "POST", body: fd });
-                    fetch(request).then((response) => { response.json().then((data) => {
-                        toastResult(response, 'Created media', 'Failed to create media');
-                        if(data['url']) {
-                            associate_media(data['uuid'], listContainer.children.length);
-                            append_media_template(mediaPath + data['url'], '', '', '', '', '', false, data['uuid'], file.type, 'changed');
-                        }
-                        URL.revokeObjectURL(fileurl);
-                    })});
-                }
-                
-            }
-            else {
-                toast(`${file.type} is not a supported file type`, 4000, 'error');
-            }
+            filePromises[index] = prepareMedia(file);
         }
+
+        Promise.allSettled(filePromises).then((mediaObjects) => {
+            console.log(mediaObjects);
+            let createPromises = [];
+            
+            for (let index = 0; index < mediaObjects.length; index++) {
+                const mediaObject = mediaObjects[index];
+                if (mediaObject.status == 'fulfilled') {
+                    createPromises.push(createMedia(mediaObject.value));
+                }
+            }
+
+            Promise.allSettled(createPromises).then((responses) => {
+                console.log(responses);
+                responses.forEach((fileInfo) => {
+                    if (fileInfo.status == 'fulfilled')
+                    {
+                        info = fileInfo.value;
+                        append_media_template(mediaPath + info.url, '', '', '', '', '', false, info.uuid, info.type, 'changed');
+                    }
+                    else {
+                        toast(`Failed to add ${fileInfo.reason}`, 4000, 'error');
+                    }
+                });
+                save_gallery();
+            });
+        });
     }
     input.click();
 });
@@ -119,8 +163,8 @@ addEmbedButton.addEventListener("click", (event) => {
         fetch(request).then((response) => { response.json().then((data) => {
             toastResult(response, 'Created embed', 'Failed to create embed');
             if(data['url']) {
-                associate_media(data['uuid'], listContainer.children.length);
                 append_media_template(data['url'], '', '', '', '', '', false, data['uuid'], 'embed', 'changed');
+                update_gallery_order();
             }
         })});
     }
@@ -311,7 +355,7 @@ function save_gallery() {
             creator_tags.push({ 
                 'namespace': 'creator', 
                 'tagname': tag.dataset.tagname 
-            });    
+            });
         }
 
         fd.append('tags', JSON.stringify(tags));
@@ -452,14 +496,15 @@ function update_date() {
     });
 }
 
-function associate_media(uuid, order) {
+async function associate_media(uuid, order) {
     let request = new Request(`/modify/gallery/${gallery_id}/associate_media`, {
         method: "POST",
         body: [uuid, order].toString(),
         headers: { 'X-CSRFToken': csrf_token }
     })
-    fetch(request).then((response) => {
-        toastResult(response, 'Linked media right!', 'Media link failed');
+    await fetch(request).then((response) => {
+        console.log('Associated', uuid);
+        toastResult(response, 'Linked media to gallery', 'Media link failed');
     });
 }
 
