@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
 
     'allauth.socialaccount.providers.discord',
+
+    'easy_thumbnails'
 ]
 
 MIDDLEWARE = [
@@ -160,6 +162,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_ROOT = os.getenv("DJANGO_MEDIA_ROOT")
 MEDIA_URL = os.getenv("DJANGO_MEDIA_URL")
+
+THUMBNAIL_ALIASES = {
+    '': {
+        '100': {'size': (100, 100), 'crop': True},
+    }
+}
+
 SITE_ID=1
 
 SOCIALACCOUNT_PROVIDERS = {

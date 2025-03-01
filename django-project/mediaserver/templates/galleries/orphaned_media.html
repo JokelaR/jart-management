@@ -1,11 +1,43 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load thumbnail %}
 
 {% block title %}Edit Gallery{% endblock title %}
 
 {% block page-style %}
 <style>
+    main {
+        display: flex;
+        flex-direction: row;
+        max-width: 1600px;
+        margin: 0 auto;
+        gap: 1rem;
 
+        > div {
+            width: 50%;
+        }
+    }
+    .media {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin: 1rem;
+        border: 2px solid white;
+        gap: 1rem;
+
+        img, video {
+            height: 100px;
+            width: 100px;
+        }
+        p {
+            flex-grow: 1;
+        }
+        button {
+            height: 100px;
+            width: 100px;
+            justify-self: end;
+        }
+    }
 </style>
 {% endblock page-style %}
 
@@ -13,11 +45,31 @@
 <main>
     <div>
         <h1>Orphaned files</h1>
-        <ul>
+        <div>
             {% for media in orphaned_media %}
-                <p>{{ media.file.name }}</p>
+                <div class="media">
+                    {% if 'image/' in media.type %}
+                    <img src="{{ media.file|thumbnail_url:'100' }}" alt="{{ media.file.name }}">
+                    {% elif 'video/' in media.type %}
+                    <video src="{{ media.file.url }}" controls>
+                    {% endif %}
+                    <p>{{ media.file.name }}</p>
+                    <button>➡️</button>
+                </div>
             {% endfor %}
-        </ul>
+        </div>
+    </div>
+    <div>
+        <h1>Galleries</h1>
+        <fieldset>
+            <legend>Target gallery</legend>
+            
+            <select name="gallery" size="{{galleries|length}}" id="">
+            {% for gallery in galleries %}
+                <option value="{{ gallery.id }}">{{ gallery.title }}</option>
+            {% endfor %}
+            </select>
+        </fieldset>
     </div>
 </main>
 

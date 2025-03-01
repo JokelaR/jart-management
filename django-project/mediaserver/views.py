@@ -345,8 +345,8 @@ def delete_gallery(request, gallery_id):
 @permission_required('mediaserver.change_gallery')
 def orphaned_media(request):
     orphaned_media = Media.objects.filter(media_gallery=None)
-    galleries = Gallery.objects.all().values('id', 'title')
-    return render(request, "galleries/orphaned_media.html", {'orphaned_media': orphaned_media})
+    galleries = Gallery.objects.all().values('id', 'title').order_by('category', '-created_date')
+    return render(request, "galleries/orphaned_media.html", {'orphaned_media': orphaned_media, 'galleries': galleries})
 
 @receiver(post_delete, sender=Media)
 def auto_delete_file_on_delete(sender, instance: Media, **kwargs):

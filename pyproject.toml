@@ -12,6 +12,7 @@ Django = "^5.1"
 django-allauth = {extras = ["socialaccount"], version = "^64.2.0"}
 python-dotenv = "^1.0.1"
 psycopg = "^3.2.1"
+easy-thumbnails = "^2.10"
 
 
 [build-system]
