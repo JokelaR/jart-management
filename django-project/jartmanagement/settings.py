@@ -186,6 +186,12 @@ CSRF_COOKIE_SECURE = True
 CSRF_TRUSTED_ORIGINS = [
     'https://janart.bulder.fi',
 ]
-ALLOWED_HOSTS = [
-	'janart.bulder.fi',
-]
+
+a_hosts = os.getenv("DJANGO_ALLOWED_HOSTS")
+if a_hosts is None:
+    ALLOWED_HOSTS = []
+else:
+    ALLOWED_HOSTS = a_hosts.split(',')
+
+REMOTE_TOKEN = os.getenv("REMOTE_TOKEN") # Token used for remote file submissions
+REMOTE_USERNAME = os.getenv("REMOTE_USERNAME") # Username used for remote file submissions

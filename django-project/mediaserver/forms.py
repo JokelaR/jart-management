@@ -6,6 +6,11 @@ class NewImageForm(forms.ModelForm):
         model = Media
         fields = ['file', 'title', 'description', 'uploaderDescription', 'type', 'height', 'width', 'loop', 'uploader']
 
+class NewMediaRemoteForm(forms.ModelForm):
+    class Meta:
+        model = Media
+        fields = ['file', 'creator_tags', 'description', 'type', 'height', 'width', 'uploader']
+
 class NewEmbedForm(forms.ModelForm):
     class Meta:
         model = EmbeddedMedia

@@ -1,11 +1,13 @@
-from typing import Dict, List
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth import get_user_model
 from django.views.decorators.http import require_http_methods, require_safe
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.list import ListView
 from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseRedirect, Http404
 from .models import *
 from .forms import *
+from jartmanagement.settings import REMOTE_USERNAME, REMOTE_TOKEN
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
 from django.urls import reverse
@@ -13,6 +15,10 @@ from django.core.exceptions import ObjectDoesNotExist
 import os, json
 from datetime import datetime
 # Create your views here.
+
+
+TOKEN_UPLOAD_USER = get_user_model().objects.get(username=REMOTE_USERNAME)
+
 @require_safe
 def index(request):
     gallery_list = Gallery.objects.order_by('category', '-created_date')
@@ -122,6 +128,46 @@ def create_media(request):
         return HttpResponse(json.dumps(response))
     return HttpResponse(status=400)
 
+@csrf_exempt
+@require_http_methods(['POST'])
+def create_media_with_token(request):
+    print('Received request')
+    # Form data should contain: ['file', 'creator', 'description', 'type', 'height', 'width']
+    token = request.POST.get('token')
+    if not token or token == '' or token != REMOTE_TOKEN:
+        return JsonResponse({'error': 'Token validation failed'}, status=401)
+    request_data = request.POST.copy()
+    
+    # Mandatory fields
+    try:
+        file = request.FILES["file"]
+    except KeyError:
+        return JsonResponse({'error': 'Missing file'}, status=400)
+    creator_name = request.POST.get('creator')
+    type = request.POST.get('type')
+    height = request.POST.get('height')
+    width = request.POST.get('width')
+    if not creator_name or not type or not height or not width:
+        return JsonResponse({'error': 'Missing one or more mandatory field'}, status=400)
+
+    
+    # Optional fields
+    try:
+        description = request_data['description']
+    except KeyError:
+        description = ''
+
+    creator = None
+    try:
+        creator = Tag.objects.get(namespace='creator', displayName=creator_name)
+    except ObjectDoesNotExist:
+        description = f'❗Unlinked creator "{creator_name}"❗ - {description}'
+    
+    media = Media(file=file, description=description, type=type, height=height, width=width, loop=False, uploader=TOKEN_UPLOAD_USER)
+    if creator:
+        media.creator_tags.add(creator)
+    media.save()
+    return JsonResponse({'created_uuid': media.uuid.hex}, status=200)
 
 @login_required
 @require_http_methods(['POST'])
@@ -294,6 +340,13 @@ def delete_gallery(request, gallery_id):
         media_item.delete()
     gallery.delete()
     return HttpResponseRedirect('/')
+
+@login_required
+@permission_required('mediaserver.change_gallery')
+def orphaned_media(request):
+    orphaned_media = Media.objects.filter(media_gallery=None)
+    galleries = Gallery.objects.all().values('id', 'title')
+    return render(request, "galleries/orphaned_media.html", {'orphaned_media': orphaned_media})
 
 @receiver(post_delete, sender=Media)
 def auto_delete_file_on_delete(sender, instance: Media, **kwargs):

@@ -10,10 +10,13 @@ urlpatterns = [
     path("galleries", views.galleries, name="galleries"),
     path("galleries/latest", views.latest_gallery, name="latest_gallery"),
     path("galleries/latest/<str:category>", views.latest_gallery_by_category, name="latest_gallery_by_category"),
+    
     path("create/media", views.create_media, name="create_media"),
+    path("create/media/tokenauth", views.create_media_with_token, name="create_media_with_token"),
     path("create/mediaEmbed", views.create_embedded_media, name="create_embedded_media"),
     path("create/gallery", views.create_gallery, name="create_gallery"),
     path("delete/gallery/<int:gallery_id>", views.delete_gallery, name="delete_gallery"),
+    path("media/orphaned", views.orphaned_media, name="orphaned_media"),
     path("modify/media", views.modify_media, name="modify_media"),
     path("modify/gallery/<int:gallery_id>/media", views.update_gallery_media, name="update_gallery_media"),
     path("modify/gallery/<int:gallery_id>/title", views.update_gallery_title, name="update_gallery_title"),

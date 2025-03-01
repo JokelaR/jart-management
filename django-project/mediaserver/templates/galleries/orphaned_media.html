@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Gallery{% endblock title %}
+
+{% block page-style %}
+<style>
+
+</style>
+{% endblock page-style %}
+
+{% block body-content %}
+<main>
+    <div>
+        <h1>Orphaned files</h1>
+        <ul>
+            {% for media in orphaned_media %}
+                <p>{{ media.file.name }}</p>
+            {% endfor %}
+        </ul>
+    </div>
+</main>
+
+{% endblock body-content %}
+
+{% block after-body %}
+<script>
+</script>
+{% endblock after-body %}
