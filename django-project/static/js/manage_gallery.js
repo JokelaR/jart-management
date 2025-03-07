@@ -18,6 +18,7 @@ const localStorage = window.localStorage;
 
 let order_changed = false;
 let items_changed = false;
+//TODO show the order status in the toolbar
 
 galleryCategorySelect.value = original_category;
 let currentCategory = galleryCategorySelect.value;
@@ -214,6 +215,11 @@ function append_media_template(url, title, creator_tags, tags, description, extr
         new_node.src = url;
         new_node.loading = 'lazy';
         new_node.title = url.replace('/media/', '');
+
+        let overlay = document.createElement('img');
+        overlay.src = url;
+        overlay.loading = 'lazy';
+        template_clone.querySelector('.previewOverlay').appendChild(overlay);
     }
     else if(allowedVideoTypes.includes(type)) {
         new_node = document.createElement('video');

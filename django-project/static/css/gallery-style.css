@@ -91,9 +91,20 @@ div.pswp__item:has(.tagContainer > .tag[data-tag-tagname="Sex Warning"]) > .pswp
     margin-top: 0px;
     bottom: 0;
     overflow-y: auto;
+    height: max-content;
+    margin-left: 1rem;
 }
-.pswp__dynamic-caption {
+.pswp__dynamic-caption--below {
+    margin-top: 0.25rem;
+    padding: 0.5rem !important;
+}
+
+.pswp__dynamic-caption:not(.pswp__dynamic-caption--mobile) {
     overflow-y: auto;
+
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 1rem;
+
 }
 strong {
     font-weight: bold;
