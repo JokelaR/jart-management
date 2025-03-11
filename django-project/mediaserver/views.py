@@ -167,7 +167,16 @@ def create_media_with_token(request):
     if creator:
         media.creator_tags.add(creator)
     media.save()
-    return JsonResponse({'created_uuid': media.uuid.hex}, status=200)
+    return JsonResponse({'created_uuid': media.uuid}, status=200)
+
+@require_safe
+@require_http_methods(['GET'])
+def get_media_gallery(request, media_uuid):
+    media = get_object_or_404(Media, uuid=media_uuid)
+    gallery = media.media_gallery.first() # type: ignore
+    if gallery:
+        return JsonResponse({'gallery_id': gallery.id}, status=200)
+    return JsonResponse({'error': 'No gallery'}, status=404)
 
 @login_required
 @require_http_methods(['POST'])

@@ -17,6 +17,7 @@ urlpatterns = [
     path("create/gallery", views.create_gallery, name="create_gallery"),
     path("delete/gallery/<int:gallery_id>", views.delete_gallery, name="delete_gallery"),
     path("media/orphaned", views.orphaned_media, name="orphaned_media"),
+    path("media/<uuid:uuid>/gallery", views.get_media_gallery, name="get_media_gallery"),
     path("modify/media", views.modify_media, name="modify_media"),
     path("modify/gallery/<int:gallery_id>/media", views.update_gallery_media, name="update_gallery_media"),
     path("modify/gallery/<int:gallery_id>/title", views.update_gallery_title, name="update_gallery_title"),
