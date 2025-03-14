@@ -171,21 +171,37 @@
         display:flex;
         flex-direction: column;
     }
-}
-textarea {
-    max-width: 100%;
-    resize: vertical;
+    input, textarea {
+        background-color: #221b1b;
+        border: #8b8b8b solid 1px;
+        border-radius: 0.5rem;
+        color: white;
+    }
+    input {
+        height: 34px;
+    }
+    textarea {
+        max-width: 100%;
+        resize: vertical;
+    }    
 }
 
 .tagInput {
     display: flex;
-    background-color: white;
+    background-color: #221b1b;
+    border: #8b8b8b solid 1px;
+    border-radius: 0.5rem;
     position: relative;
     flex-wrap: wrap;
 
     input {
         border: none;
         flex-grow: 1;
+        height: 34px;
+    }
+    input:not(:first-child) {
+        border-top-left-radius: 0px;
+        border-bottom-left-radius: 0px;
     }
 
     .autocompletePopup {
