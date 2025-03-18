@@ -131,8 +131,6 @@ def create_media(request):
 @csrf_exempt
 @require_http_methods(['POST'])
 def create_media_with_token(request):
-    print('Received request')
-    # Form data should contain: ['file', 'creator', 'description', 'type', 'height', 'width']
     token = request.POST.get('token')
     if not token or token == '' or token != REMOTE_TOKEN:
         return JsonResponse({'error': 'Token validation failed'}, status=401)
@@ -351,9 +349,17 @@ def delete_gallery(request, gallery_id):
     return HttpResponseRedirect('/')
 
 @login_required
+@require_http_methods(["POST"])
+@permission_required('mediaserver.delete_gallery')
+def delete_media(request, media_uuid):
+    media = Media.objects.get(uuid=media_uuid)
+    media.delete()
+    return HttpResponseRedirect(reverse('orphaned_media'))
+
+@login_required
 @permission_required('mediaserver.change_gallery')
 def orphaned_media(request):
-    orphaned_media = Media.objects.filter(media_gallery=None)
+    orphaned_media = Media.objects.filter(media_gallery=None).order_by('uploaded_date')
     galleries = Gallery.objects.all().values('id', 'title').order_by('category', '-created_date')
     return render(request, "galleries/orphaned_media.html", {'orphaned_media': orphaned_media, 'galleries': galleries})
 

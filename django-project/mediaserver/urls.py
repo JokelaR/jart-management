@@ -16,6 +16,7 @@ urlpatterns = [
     path("create/mediaEmbed", views.create_embedded_media, name="create_embedded_media"),
     path("create/gallery", views.create_gallery, name="create_gallery"),
     path("delete/gallery/<int:gallery_id>", views.delete_gallery, name="delete_gallery"),
+    path("delete/media/<uuid:media_uuid>", views.delete_media, name="delete_media"),
     path("objects/orphaned", views.orphaned_media, name="orphaned_media"),
     path("objects/<uuid:media_uuid>/gallery", views.get_media_gallery, name="get_media_gallery"),
     path("modify/media", views.modify_media, name="modify_media"),

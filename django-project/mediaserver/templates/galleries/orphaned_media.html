@@ -51,9 +51,13 @@
                     {% if 'image/' in media.type %}
                     <img src="{{ media.file|thumbnail_url:'100' }}" alt="{{ media.file.name }}">
                     {% elif 'video/' in media.type %}
-                    <video src="{{ media.file.url }}" controls>
+                    <video src="{{ media.file.url }}" controls></video>
                     {% endif %}
                     <p>{{ media.file.name }}</p>
+                    <form action="{% url 'delete_media' media_uuid=media.uuid%}", method="POST">
+                        <button class="delete" type="submit" onclick="return confirm('Are you SURE you want to delete this file?');">delete</button>
+                        {% csrf_token %}
+                    </form>
                     <button>➡️</button>
                 </div>
             {% endfor %}
