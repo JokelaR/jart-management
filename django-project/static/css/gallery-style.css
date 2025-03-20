@@ -92,7 +92,10 @@ div.pswp__item:has(.tagContainer > .tag[data-tag-tagname="Sex Warning"]) > .pswp
     bottom: 0;
     overflow-y: auto;
     height: max-content;
+    max-height: 60vh;
     margin-left: 1rem;
+
+    scrollbar-width: thin;
 }
 .pswp__dynamic-caption--below {
     margin-top: 0.25rem;
@@ -114,7 +117,7 @@ p {
     font-size: 1rem;
 }
 .creatorDescription {
-    border-left: solid 4px #ffffff;
+    border-left: solid 4px rgb(187, 58, 58);
     border-top-left-radius: 4px;
     border-bottom-left-radius: 4px;
     padding: 0.5rem;

@@ -2,6 +2,9 @@ html {
     background-color: rgb(27, 17, 17);
     color: white;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+    /* Default firefox colors */
+    scrollbar-color: #858585 transparent;
 }
 .warn {
     color: #d35555;
