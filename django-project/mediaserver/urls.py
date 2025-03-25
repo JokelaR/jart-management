@@ -18,6 +18,7 @@ urlpatterns = [
     path("delete/gallery/<int:gallery_id>", views.delete_gallery, name="delete_gallery"),
     path("delete/media/<uuid:media_uuid>", views.delete_media, name="delete_media"),
     path("objects/orphaned", views.orphaned_media, name="orphaned_media"),
+    path("objects/detach/<uuid:media_uuid>", views.detach_media, name="detach_media"),
     path("objects/<uuid:media_uuid>/gallery", views.get_media_gallery, name="get_media_gallery"),
     path("modify/media", views.modify_media, name="modify_media"),
     path("modify/gallery/<int:gallery_id>/media", views.update_gallery_media, name="update_gallery_media"),
@@ -26,6 +27,7 @@ urlpatterns = [
     path("modify/gallery/<int:gallery_id>/date", views.update_gallery_date, name="update_gallery_date"),
     path("modify/gallery/<int:gallery_id>/category", views.update_gallery_category, name="update_gallery_category"),
     path("modify/gallery/<int:gallery_id>/associate_media", views.associate_media, name="associate_media"),
+    path("modify/gallery/<int:gallery_id>/associate_one_item", views.add_single_media, name="add_single_media"),
 
     path("creator/<str:tag>", views.CreatorTagListView.as_view(template_name="galleries/tag_list.html"), name="media_by_creator_tag"),
     path("tags/<str:namespace>/<str:tag>", views.TagListView.as_view(template_name="galleries/tag_list.html"), name="media_by_tag"),

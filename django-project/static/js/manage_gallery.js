@@ -189,6 +189,20 @@ function delete_media_button(event) {
     });
 }
 
+function orphan_media_button(event) {
+    let id = event.target.form['uuid'].value;
+    let request = new Request(`/objects/detach/${id}`, { 
+        method: "POST", 
+        headers: { 'X-CSRFToken': csrf_token }
+    });
+    fetch(request).then((response) => {
+        toastResult(response, 'Orphaned file', 'Failed to orphan file');
+        if (response.status == 200) {
+            event.target.form.parentElement.remove()
+        }
+    });
+}
+
 /**
  * Appends a media template to the list container with the provided data.
  * 
@@ -266,6 +280,7 @@ function append_media_template(url, title, creator_tags, tags, description, extr
     form['uploaderDescription'].textContent = extra_description;
     form['uuid'].value = uuid;
     form['delete'].addEventListener('click', delete_media_button);
+    form['orphan'].addEventListener('click', orphan_media_button);
     form['loop'].checked = (loop == true || loop == 'True') 
 
     if (localStorage.getItem(`media_${uuid}_collapsed`) == 'true') {

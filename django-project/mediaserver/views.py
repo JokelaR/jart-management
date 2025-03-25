@@ -332,6 +332,15 @@ def associate_media(request, gallery_id):
 
 @login_required
 @require_http_methods(["POST"])
+@permission_required('mediaserver.change_gallery')
+def add_single_media(request, gallery_id):
+    media = Media.objects.get(uuid=request.body.decode())
+    gallery = Gallery.objects.get(id=gallery_id)
+    gallery.media_items.add(media, through_defaults={'order': gallery.media_items.count()})
+    return HttpResponse(status=200)
+
+@login_required
+@require_http_methods(["POST"])
 @permission_required('mediaserver.add_gallery')
 def create_gallery(request):
     new_gallery = Gallery(title="New Gallery", category="other")
@@ -354,6 +363,14 @@ def delete_gallery(request, gallery_id):
 def delete_media(request, media_uuid):
     media = Media.objects.get(uuid=media_uuid)
     media.delete()
+    return HttpResponseRedirect(reverse('orphaned_media'))
+
+@login_required
+@require_http_methods(["POST"])
+@permission_required('mediaserver.change_media')
+def detach_media(request, media_uuid):
+    media = Media.objects.get(uuid=media_uuid)
+    media.media_gallery.clear() # type: ignore
     return HttpResponseRedirect(reverse('orphaned_media'))
 
 @login_required

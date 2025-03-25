@@ -58,7 +58,11 @@
                         <button class="delete" type="submit" onclick="return confirm('Are you SURE you want to delete this file?');">delete</button>
                         {% csrf_token %}
                     </form>
-                    <button>➡️</button>
+                    <form action="">
+                        <button class="add" type="button" onclick="add_media_to_gallery(this, event);">➡️</button>
+                        <input type="hidden" name="uuid" value="{{ media.uuid }}">
+                        {% csrf_token %}
+                    </form>
                 </div>
             {% endfor %}
         </div>
@@ -81,5 +85,24 @@
 
 {% block after-body %}
 <script>
+    const csrf_token = "{{ csrf_token }}";
+    const gallery_field = document.querySelector('select[name="gallery"]');
+    gallery_field.selectedIndex = 0;
+
+    function add_media_to_gallery(element, event) {
+        const media_id = event.target.form['uuid'].value;
+        const gallery_id = gallery_field.value;
+        let request = new Request(`/modify/gallery/${gallery_id}/associate_one_item`, {
+            method: "POST",
+            body: media_id,
+            headers: { 'X-CSRFToken': csrf_token }
+        });
+        fetch(request).then((response) => {
+            console.log(response);
+            if (response.status == 200) {
+                window.location.reload();
+            }
+        });    
+    }
 </script>
 {% endblock after-body %}
