@@ -14,37 +14,44 @@ from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 import os, json
 from datetime import datetime
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import Any
+    from django.http import HttpRequest
+    from uuid import UUID
+
 # Create your views here.
 
 
 TOKEN_UPLOAD_USER = get_user_model().objects.get(username=REMOTE_USERNAME)
 
 @require_safe
-def index(request):
+def index(request: HttpRequest):
     gallery_list = Gallery.objects.order_by('category', '-created_date')
     return render(request, "galleries/index.html", {'gallery_list': gallery_list})
 
 @require_safe
-def redirect_home(request, leftovers):
+def redirect_home(request: HttpRequest, _: Any):
     return HttpResponseRedirect('/')
 
 @require_safe
-def redirect_login(request):
+def redirect_login(request: HttpRequest):
     return HttpResponseRedirect('/accounts/discord/login')
 
 @require_safe
-def galleries(request):
+def galleries(request: HttpRequest):
     gallery_list = Gallery.objects.order_by('category', '-created_date')
     return render(request, "galleries/index.html", {'gallery_list': gallery_list})
 
 @require_safe
-def gallery(request, gallery_id):
+def gallery(request: HttpRequest, gallery_id: int):
     gallery = get_object_or_404(Gallery, pk=gallery_id)
     items = gallery.media_items.order_by('galleryorder')
     return render(request, "galleries/gallery.html", {'gallery': gallery, 'page_obj': items})
 
 @require_safe
-def latest_gallery(request):
+def latest_gallery(request: HttpRequest):
     gallery = Gallery.objects.filter(visible=True).order_by('-created_date').first()
     if gallery is not None:
         return HttpResponseRedirect(reverse("gallery", kwargs={'gallery_id':gallery.id}))
@@ -52,24 +59,24 @@ def latest_gallery(request):
         return HttpResponseRedirect('/')
 
 @require_safe
-def all_tags(request):
+def all_tags(request: HttpRequest):
     tags = Tag.objects.all()
     return render(request, "tags.html", {'tags': tags})
     
-def latest_gallery_by_category(request, category):
+def latest_gallery_by_category(request: HttpRequest, category: str):
     gallery = Gallery.objects.filter(category__iexact=category, visible=True).order_by('-created_date').first()
     if gallery is not None:
         return HttpResponseRedirect(reverse("gallery", kwargs={'gallery_id':gallery.id}))
     else:
         raise Http404(f'No galleries in "{category}"')
         
-def tag_list_by_namespace(request, namespace):
+def tag_list_by_namespace(request: HttpRequest, namespace: str):
     tags = Tag.objects.filter(namespace__iexact=namespace)
     return JsonResponse([tag.tagname for tag in tags])
 
 @require_http_methods(['POST'])
 @permission_required('mediaserver.change_media')
-def tags_by_startswith(request):
+def tags_by_startswith(request: HttpRequest):
     data = json.loads(request.body.decode())
     if data['namespace'] == "":
         tags = Tag.objects.order_by('tag_count').filter(tagname__istartswith=data['incomplete_tag']).reverse()[:10]
@@ -80,33 +87,33 @@ def tags_by_startswith(request):
 @login_required
 @permission_required('mediaserver.delete_tag')
 @require_http_methods(['POST'])
-def delete_tag(tag):
-    tag = Tag.objects.get(tagname=tag)
-    tag.delete()
+def delete_tag(tag: str):
+    tag_o = Tag.objects.get(tagname=tag)
+    tag_o.delete()
     return HttpResponse(status=200)
 
 @login_required
 @permission_required('mediaserver.change_media')
 @require_http_methods(['POST'])
-def add_tag(media_uuid, tag):
+def add_tag(media_uuid: UUID, tag: str):
     media = Media.objects.get(uuid=media_uuid)
-    tag = Tag.objects.get(tagname=tag)
-    media.tags.add(tag)
+    tag_o = Tag.objects.get(tagname=tag)
+    media.tags.add(tag_o)
     return HttpResponse(status=200)
 
 @login_required
 @permission_required('mediaserver.change_media')
 @require_http_methods(['POST'])
-def remove_tag(media_uuid, tag):
+def remove_tag(media_uuid: UUID, tag: str):
     media = Media.objects.get(uuid=media_uuid)
-    tag = Tag.objects.get(tagname=tag)
-    media.tags.remove(tag)
+    tag_o = Tag.objects.get(tagname=tag)
+    media.tags.remove(tag_o)
     return HttpResponse(status=200)
 
 @require_safe
 @login_required
 @permission_required('mediaserver.change_gallery')
-def edit_gallery(request, gallery_id):
+def edit_gallery(request: HttpRequest, gallery_id: int):
     gallery = get_object_or_404(Gallery, pk=gallery_id)
     media_items = gallery.media_items.order_by('galleryorder')
     categories = Gallery.objects.all().distinct('category').values_list('category', flat=True)
@@ -115,7 +122,7 @@ def edit_gallery(request, gallery_id):
 @login_required
 @require_http_methods(['POST'])
 @permission_required('mediaserver.add_media')
-def create_media(request):
+def create_media(request: HttpRequest):
     tempDict = request.POST.copy()
     tempDict['uploader'] = request.user
     form = NewImageForm(tempDict, request.FILES)
@@ -130,7 +137,7 @@ def create_media(request):
 
 @csrf_exempt
 @require_http_methods(['POST'])
-def create_media_with_token(request):
+def create_media_with_token(request: HttpRequest):
     token = request.POST.get('token')
     if not token or token == '' or token != REMOTE_TOKEN:
         return JsonResponse({'error': 'Token validation failed'}, status=401)
@@ -169,9 +176,9 @@ def create_media_with_token(request):
 
 @require_safe
 @require_http_methods(['GET'])
-def get_media_gallery(request, media_uuid):
+def get_media_gallery(request: HttpRequest, media_uuid: UUID):
     media = get_object_or_404(Media, uuid=media_uuid)
-    gallery = media.media_gallery.first() # type: ignore
+    gallery: Gallery = media.media_gallery.first() # type: ignore
     if gallery:
         return JsonResponse({'gallery_id': gallery.id}, status=200)
     return JsonResponse({'error': 'No gallery'}, status=404)
@@ -179,7 +186,7 @@ def get_media_gallery(request, media_uuid):
 @login_required
 @require_http_methods(['POST'])
 @permission_required('mediaserver.add_media')
-def create_embedded_media(request):
+def create_embedded_media(request: HttpRequest):
     tempDict = request.POST.copy()
     tempDict['uploader'] = request.user
     form = NewEmbedForm(tempDict)
@@ -273,7 +280,7 @@ def diff_creator_tags(media: Media, current_tags: list[dict[str, str]], new_tags
 @login_required
 @require_http_methods(["POST"])
 @permission_required('mediaserver.change_gallery')
-def update_gallery_media(request, gallery_id):
+def update_gallery_media(request: HttpRequest, gallery_id: int):
     gallery = Gallery.objects.get(id=gallery_id)
     gallery.media_items.clear()
     #expect data in the format 'uuid,uuid,uuid'
@@ -286,7 +293,7 @@ def update_gallery_media(request, gallery_id):
 @login_required
 @require_http_methods(["POST"])
 @permission_required('mediaserver.change_gallery')
-def update_gallery_title(request, gallery_id):
+def update_gallery_title(request: HttpRequest, gallery_id: int):
     gallery = Gallery.objects.get(id=gallery_id)
     gallery.title = request.body.decode()
     gallery.save()
@@ -295,7 +302,7 @@ def update_gallery_title(request, gallery_id):
 @login_required
 @require_http_methods(["POST"])
 @permission_required('mediaserver.change_gallery')
-def update_gallery_visibility(request, gallery_id):
+def update_gallery_visibility(request: HttpRequest, gallery_id: int):
     gallery = Gallery.objects.get(id=gallery_id)
     gallery.visible = not gallery.visible
     gallery.save()
@@ -304,7 +311,7 @@ def update_gallery_visibility(request, gallery_id):
 @login_required
 @require_http_methods(["POST"])
 @permission_required('mediaserver.change_gallery')
-def update_gallery_date(request, gallery_id):
+def update_gallery_date(request: HttpRequest, gallery_id: int):
     gallery = Gallery.objects.get(id=gallery_id)
     gallery.created_date = datetime.fromisoformat(f'{request.body.decode()}T00:00:00Z')
     gallery.save()
@@ -313,7 +320,7 @@ def update_gallery_date(request, gallery_id):
 @login_required
 @require_http_methods(["POST"])
 @permission_required('mediaserver.change_gallery')
-def update_gallery_category(request, gallery_id):
+def update_gallery_category(request: HttpRequest, gallery_id: int):
     gallery = Gallery.objects.get(id=gallery_id)
     gallery.category = request.body.decode()
     gallery.save()
@@ -322,7 +329,7 @@ def update_gallery_category(request, gallery_id):
 @login_required
 @require_http_methods(["POST"])
 @permission_required('mediaserver.change_gallery')
-def associate_media(request, gallery_id):
+def associate_media(request: HttpRequest, gallery_id: int):
     #expect body in form of 'uuid,order'
     uuid, order = request.body.decode().split(',')
     gallery = Gallery.objects.get(id=gallery_id)
@@ -333,7 +340,7 @@ def associate_media(request, gallery_id):
 @login_required
 @require_http_methods(["POST"])
 @permission_required('mediaserver.change_gallery')
-def add_single_media(request, gallery_id):
+def add_single_media(request: HttpRequest, gallery_id: int):
     media = Media.objects.get(uuid=request.body.decode())
     gallery = Gallery.objects.get(id=gallery_id)
     gallery.media_items.add(media, through_defaults={'order': gallery.media_items.count()})
@@ -342,7 +349,7 @@ def add_single_media(request, gallery_id):
 @login_required
 @require_http_methods(["POST"])
 @permission_required('mediaserver.add_gallery')
-def create_gallery(request):
+def create_gallery(request: HttpRequest):
     new_gallery = Gallery(title="New Gallery", category="other")
     new_gallery.save()
     return HttpResponseRedirect(reverse('edit_gallery', args=([new_gallery.id])))
@@ -350,7 +357,7 @@ def create_gallery(request):
 @login_required
 @require_http_methods(["POST"])
 @permission_required('mediaserver.delete_gallery')
-def delete_gallery(request, gallery_id):
+def delete_gallery(request: HttpRequest, gallery_id: int):
     gallery = Gallery.objects.get(id=gallery_id)
     for media_item in gallery.media_items.all():
         media_item.delete()
@@ -360,7 +367,7 @@ def delete_gallery(request, gallery_id):
 @login_required
 @require_http_methods(["POST"])
 @permission_required('mediaserver.delete_gallery')
-def delete_media(request, media_uuid):
+def delete_media(request: HttpRequest, media_uuid: UUID):
     media = Media.objects.get(uuid=media_uuid)
     media.delete()
     return HttpResponseRedirect(reverse('orphaned_media'))
@@ -368,20 +375,20 @@ def delete_media(request, media_uuid):
 @login_required
 @require_http_methods(["POST"])
 @permission_required('mediaserver.change_media')
-def detach_media(request, media_uuid):
+def detach_media(request: HttpRequest, media_uuid: UUID):
     media = Media.objects.get(uuid=media_uuid)
     media.media_gallery.clear() # type: ignore
     return HttpResponseRedirect(reverse('orphaned_media'))
 
 @login_required
 @permission_required('mediaserver.change_gallery')
-def orphaned_media(request):
+def orphaned_media(request: HttpRequest):
     orphaned_media = Media.objects.filter(media_gallery=None).order_by('uploaded_date')
     galleries = Gallery.objects.all().values('id', 'title').order_by('category', '-created_date')
     return render(request, "galleries/orphaned_media.html", {'orphaned_media': orphaned_media, 'galleries': galleries})
 
 @receiver(post_delete, sender=Media)
-def auto_delete_file_on_delete(sender, instance: Media, **kwargs):
+def auto_delete_file_on_delete(sender: Media, instance: Media, **kwargs):
     """
     Deletes file from filesystem
     when corresponding `MediaFile` object is deleted.
@@ -413,7 +420,10 @@ class CreatorTagListView(ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['tag'] = Tag.objects.get(namespace='creator', tagname=self.kwargs.get('tag'))
+        try:
+            context['tag'] = Tag.objects.get(namespace='creator', tagname=self.kwargs.get('tag'))
+        except ObjectDoesNotExist:
+            raise Http404(f'No creator with name "{self.kwargs.get("tag")}"')
         return context
     
 class TagListView(ListView):
@@ -434,7 +444,13 @@ class TagListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.kwargs.get('namespace') == 'all':
-            context['tag'] = Tag.objects.get(tagname=self.kwargs.get('tag'))
+            try:
+                context['tag'] = Tag.objects.get(tagname=self.kwargs.get('tag'))
+            except ObjectDoesNotExist:
+                raise Http404(f'No namespaceless tag with name "{self.kwargs.get("tag")}"')
         else:
-            context['tag'] = Tag.objects.get(namespace=self.kwargs.get('namespace'), tagname=self.kwargs.get('tag'))
+            try:
+                context['tag'] = Tag.objects.get(namespace=self.kwargs.get('namespace'), tagname=self.kwargs.get('tag'))
+            except ObjectDoesNotExist:
+                raise Http404(f'No "{self.kwargs.get("namespace")}" tag with name "{self.kwargs.get("tag")}"')
         return context
