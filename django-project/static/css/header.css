@@ -7,6 +7,19 @@ header {
         max-height: 76px;
     }
 }
+#linkContainer {
+    text-align: left;
+    flex-grow: 1;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    flex-basis: 0;
+    gap: 0.25rem;
+
+    span {
+        margin-left: 1rem;
+    }
+}
 #userContainer {
     text-align: right;
     flex-grow: 1;

@@ -3,7 +3,14 @@
 {% load socialaccount %}
 <link rel="stylesheet" href="{% static 'header.css' %}">
 <header>
-    <span style="flex-grow: 1"></span>
+    <span id="linkContainer" style="flex-grow: 1">
+        <span>
+            {% if perms.mediaserver.change_gallery %}
+            <a href="{%url 'orphaned_media' %}">Orphan files</a>
+            {% endif %}
+            <a href="{% url 'all_tags' %}">All Tags</a>
+        </span>
+    </span>
     <a href="/galleries" style="text-decoration: none !important;">
         <img src="{% static 'paper_janart_logo.png' %}" alt="Janart Logo" height="80">
     </a>
