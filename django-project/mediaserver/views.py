@@ -15,11 +15,9 @@ from django.core.exceptions import ObjectDoesNotExist
 import os, json
 from datetime import datetime
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from typing import Any
-    from django.http import HttpRequest
-    from uuid import UUID
+from typing import Any
+from django.http import HttpRequest
+from uuid import UUID
 
 # Create your views here.
 
@@ -421,7 +419,7 @@ class CreatorTagListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            context['tag'] = Tag.objects.get(namespace='creator', tagname=self.kwargs.get('tag'))
+            context['tag'] = Tag.objects.get(namespace='creator', tagname__iexact=self.kwargs.get('tag'))
         except ObjectDoesNotExist:
             raise Http404(f'No creator with name "{self.kwargs.get("tag")}"')
         return context
@@ -445,12 +443,12 @@ class TagListView(ListView):
         context = super().get_context_data(**kwargs)
         if self.kwargs.get('namespace') == 'all':
             try:
-                context['tag'] = Tag.objects.get(tagname=self.kwargs.get('tag'))
+                context['tag'] = Tag.objects.get(tagname__iexact=self.kwargs.get('tag'))
             except ObjectDoesNotExist:
                 raise Http404(f'No namespaceless tag with name "{self.kwargs.get("tag")}"')
         else:
             try:
-                context['tag'] = Tag.objects.get(namespace=self.kwargs.get('namespace'), tagname=self.kwargs.get('tag'))
+                context['tag'] = Tag.objects.get(namespace__iexact=self.kwargs.get('namespace'), tagname__iexact=self.kwargs.get('tag'))
             except ObjectDoesNotExist:
                 raise Http404(f'No "{self.kwargs.get("namespace")}" tag with name "{self.kwargs.get("tag")}"')
         return context

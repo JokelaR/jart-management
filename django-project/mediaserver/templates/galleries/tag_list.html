@@ -3,6 +3,13 @@
 {% block title %}Janart - Tag: {{tag.tagname}}{% endblock title %}
 {% block embed-title %}Janart | Tag: {{tag.namespace}}:{{tag.tagname}}{% endblock embed-title %}
 {% block page-description %}{{tag.tag_count}} fanart tagged with {{tag.namespace}}:{{tag.tagname}}{% endblock %}
+{% block extra-metadata %}
+    {% if tag.namespace == "creator" %}
+    <link rel="canonical" href="https://{{request.get_host}}/creator/{{tag.tagname}}">
+    {% else %}
+    <link rel="canonical" href="https://{{request.get_host}}/tags/{{tag.namespace}}/{{tag.tagname}}">
+    {% endif %}
+{% endblock extra-metadata %}
 
 {% block gallery-title %}
 <h2>Tag: {{tag.namespace}}:{{tag.tagname}}</h2>
