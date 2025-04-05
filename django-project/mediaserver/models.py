@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.db.models import QuerySet
 import uuid
 
 class Tag(models.Model):
@@ -41,9 +42,14 @@ class Tag(models.Model):
     class Meta:
         ordering = ['namespace', 'tagname']
 
+class DiscordCreator(models.Model):
+    username = models.CharField(max_length=256)
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE, null=True)
+
 class Media(models.Model):
     file = models.FileField(default='default.jpg')
     creator_tags = models.ManyToManyField(Tag, blank=True, related_name='creator_tags')
+    discord_creator = models.ForeignKey(DiscordCreator, on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=256, blank=True)
     uploader = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     description = models.TextField(blank=True)
@@ -55,6 +61,15 @@ class Media(models.Model):
     loop = models.BooleanField()
     tags = models.ManyToManyField(Tag, blank=True, related_name='tags')
     uploaded_date = models.DateTimeField("date uploaded", auto_now_add=True)
+
+    @property
+    def creators(self) -> QuerySet:
+        if self.discord_creator:
+            q = self.creator_tags.all()
+            q.union(self.discord_creator.tag)
+            return q
+        else:
+            return self.creator_tags.all()
 
     def __str__(self):
         return f'{self.file.name} - {self.type} file by {self.creator_tags.first()}'

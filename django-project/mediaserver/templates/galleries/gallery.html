@@ -65,9 +65,9 @@
                 <span class="mediaDescription">
                     {% autoescape on %}
                     {% if media.title and media.title.strip %}<strong>{{media.title}}</strong>{% endif %}
-                    {% if media.creator_tags%}
+                    {% if media.creators%}
                     <div class="tagContainer">
-                    {% for tag in media.creator_tags.all %}
+                    {% for tag in media.creators.all %}
                     <a data-tag-namespace="creator" data-tag-tagname="{{tag.tagname}}" class="tag" href="/creator/{{tag.tagname}}" title="Creator: {{tag.tagname}}">
                         <div class="tagLabel">
                         {{tag.tagname}}

@@ -10,16 +10,15 @@ from .forms import *
 from jartmanagement.settings import REMOTE_USERNAME, REMOTE_TOKEN
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
+from django.db.models import Q
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 import os, json
 from datetime import datetime
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from typing import Any
-    from django.http import HttpRequest
-    from uuid import UUID
+from typing import Any
+from django.http import HttpRequest
+from uuid import UUID
 
 # Create your views here.
 
@@ -124,7 +123,7 @@ def edit_gallery(request: HttpRequest, gallery_id: int):
 @permission_required('mediaserver.add_media')
 def create_media(request: HttpRequest):
     tempDict = request.POST.copy()
-    tempDict['uploader'] = request.user
+    tempDict['uploader'] = request.user # type: ignore
     form = NewImageForm(tempDict, request.FILES)
     if form.is_valid():
         created_media = form.save()
@@ -162,15 +161,9 @@ def create_media_with_token(request: HttpRequest):
     except KeyError:
         description = ''
 
-    creator = None
-    try:
-        creator = Tag.objects.get(namespace='creator', displayName=creator_name)
-    except ObjectDoesNotExist:
-        description = f'❗Unlinked creator "{creator_name}"❗ - {description}'
+    creator_object, _ = DiscordCreator.objects.get_or_create(username=creator_name)
     
-    media = Media(file=file, description=description, type=type, height=height, width=width, loop=False, uploader=TOKEN_UPLOAD_USER)
-    if creator:
-        media.creator_tags.add(creator)
+    media = Media(file=file, discord_creator=creator_object, description=description, type=type, height=height, width=width, loop=False, uploader=TOKEN_UPLOAD_USER)
     media.save()
     return JsonResponse({'created_uuid': media.uuid}, status=200)
 
@@ -188,7 +181,7 @@ def get_media_gallery(request: HttpRequest, media_uuid: UUID):
 @permission_required('mediaserver.add_media')
 def create_embedded_media(request: HttpRequest):
     tempDict = request.POST.copy()
-    tempDict['uploader'] = request.user
+    tempDict['uploader'] = request.user # type: ignore
     form = NewEmbedForm(tempDict)
     if form.is_valid():
         created_media = form.save()
@@ -387,6 +380,26 @@ def orphaned_media(request: HttpRequest):
     galleries = Gallery.objects.all().values('id', 'title').order_by('category', '-created_date')
     return render(request, "galleries/orphaned_media.html", {'orphaned_media': orphaned_media, 'galleries': galleries})
 
+@login_required
+@permission_required('mediaserver.change_media')
+def set_discord_user(request: HttpRequest):
+    media = Media.objects.get(uuid=request.POST['media_uuid'])
+    discord_user = DiscordCreator.objects.get_or_create(username=request.POST['discord_user'])[0]
+    media.discord_creator = discord_user
+    media.save()
+    return HttpResponse(status=200)
+
+@login_required
+@permission_required('mediaserver.change_media')
+def set_discord_user_tag(request: HttpRequest):
+    discord_user = DiscordCreator.objects.get_or_create(username=request.POST['discord_user'])[0]
+    if request.POST['tag'] and request.POST['tag'] != '':
+        tag = Tag.objects.get_or_create(namespace='creator', tagname=request.POST['tag'])[0]
+        discord_user.tag = tag
+        discord_user.save()
+        return HttpResponse(status=200)
+    return HttpResponse(status=200)
+
 @receiver(post_delete, sender=Media)
 def auto_delete_file_on_delete(sender: Media, instance: Media, **kwargs):
     """
@@ -415,7 +428,8 @@ class CreatorTagListView(ListView):
 
     def get_queryset(self):
         key = self.kwargs.get('tag', '')
-        queryset = Media.objects.filter(creator_tags__tagname__iexact=key).order_by('uploaded_date').distinct().reverse()
+        q = Q(creator_tags__tagname__iexact=key) | Q(discord_creator__username=key)
+        queryset = Media.objects.filter(q).order_by('uploaded_date').distinct().reverse()
         return queryset
     
     def get_context_data(self, **kwargs):
