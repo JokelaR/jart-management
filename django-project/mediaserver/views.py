@@ -114,9 +114,7 @@ def remove_tag(media_uuid: UUID, tag: str):
 @permission_required('mediaserver.change_gallery')
 def edit_gallery(request: HttpRequest, gallery_id: int):
     gallery = get_object_or_404(Gallery, pk=gallery_id)
-    media_items = gallery.media_items.order_by('galleryorder')
-    categories = Gallery.objects.all().distinct('category').values_list('category', flat=True)
-    return render(request, "galleries/manage_gallery.html", {'gallery': gallery, 'media_items': media_items, 'categories': categories})
+    return render(request, "galleries/manage_gallery.html", {'gallery': gallery})
 
 @login_required
 @require_http_methods(['POST'])
@@ -128,7 +126,7 @@ def create_media(request: HttpRequest):
     if form.is_valid():
         created_media = form.save()
         response = {
-            'url': created_media.file.name, 
+            'url': '/media/' + created_media.file.name, 
             'uuid': created_media.uuid.hex
         }
         return HttpResponse(json.dumps(response))
@@ -175,6 +173,53 @@ def get_media_gallery(request: HttpRequest, media_uuid: UUID):
     if gallery:
         return JsonResponse({'gallery_id': gallery.id}, status=200)
     return JsonResponse({'error': 'No gallery'}, status=404)
+
+@require_safe
+@require_http_methods(['GET'])
+@permission_required('mediaserver.change_gallery')
+def get_gallery_media(request: HttpRequest, gallery_id: int):
+    gallery = get_object_or_404(Gallery, pk=gallery_id)
+    items = gallery.media_items.order_by('galleryorder')
+    media = []
+    for item in items:
+        discord_creator = item.discord_creator.username if item.discord_creator else ""
+        discord_creator_tag = [{'tagname': item.discord_creator.tag.tagname, 'namespace': 'creator'}
+            ] if item.discord_creator and item.discord_creator.tag else []
+
+        media.append({
+            'uuid': item.uuid.hex,
+            'url': item.file.url,
+            'type': item.type,
+            'title': item.title,
+            'description': item.description,
+            'uploaderDescription': item.uploaderDescription,
+            'loop': item.loop,
+            'creator_tags': [{'namespace': 'creator', 'tagname': tag.tagname} for tag in item.creator_tags.all()],
+            'discord_creator': discord_creator,
+            'discord_creator_tag': discord_creator_tag,
+            'tags': [{'namespace': tag.namespace, 'tagname': tag.tagname} for tag in item.tags.all()],
+        })
+    return JsonResponse(media, safe=False)
+
+@require_safe
+@require_http_methods(['GET'])
+@permission_required('mediaserver.change_gallery')
+def get_gallery_metadata(request: HttpRequest, gallery_id: int):
+    gallery = get_object_or_404(Gallery, pk=gallery_id)
+    return JsonResponse({
+            'id': gallery.id,
+            'title': gallery.title, 
+            'category': gallery.category,
+            'visible': gallery.visible,
+            'created_date': gallery.created_date.date(),
+        }, safe=False)
+
+@require_safe
+@require_http_methods(['GET'])
+@permission_required('mediaserver.change_gallery')
+def get_categories(request: HttpRequest):
+    categories = Gallery.objects.all().distinct('category').values_list('category', flat=True)
+    return JsonResponse(list(categories), safe=False)
 
 @login_required
 @require_http_methods(['POST'])
