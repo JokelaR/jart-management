@@ -14,6 +14,7 @@ class Tag(models.Model):
 
     def count_uses(self):
         self.tag_count = self.tags.count() + self.creator_tags.count()
+        self.tag_count += self.discordcreator_set.count() # type: ignore
         print(f'{self.namespace}:{self.tagname}, {self.tag_count} instances')
         self.save()
         if(self.tag_count == 0):
@@ -44,7 +45,7 @@ class Tag(models.Model):
 
 class DiscordCreator(models.Model):
     username = models.CharField(max_length=256)
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE, null=True)
+    tag = models.ForeignKey(Tag, on_delete=models.SET_NULL, null=True)
 
 class Media(models.Model):
     file = models.FileField(default='default.jpg')
@@ -63,13 +64,13 @@ class Media(models.Model):
     uploaded_date = models.DateTimeField("date uploaded", auto_now_add=True)
 
     @property
-    def creators(self) -> QuerySet:
-        if self.discord_creator:
-            q = self.creator_tags.all()
-            q.union(self.discord_creator.tag)
-            return q
+    def creators(self) -> list[Tag]:
+        if self.discord_creator and self.discord_creator.tag:
+            tags = list(self.creator_tags.all())
+            tags.append(self.discord_creator.tag)
+            return tags
         else:
-            return self.creator_tags.all()
+            return list(self.creator_tags.all())
 
     def __str__(self):
         return f'{self.file.name} - {self.type} file by {self.creator_tags.first()}'

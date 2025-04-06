@@ -67,7 +67,7 @@
                     {% if media.title and media.title.strip %}<strong>{{media.title}}</strong>{% endif %}
                     {% if media.creators%}
                     <div class="tagContainer">
-                    {% for tag in media.creators.all %}
+                    {% for tag in media.creators %}
                     <a data-tag-namespace="creator" data-tag-tagname="{{tag.tagname}}" class="tag" href="/creator/{{tag.tagname}}" title="Creator: {{tag.tagname}}">
                         <div class="tagLabel">
                         {{tag.tagname}}

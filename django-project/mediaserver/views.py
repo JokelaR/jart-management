@@ -31,6 +31,10 @@ def index(request: HttpRequest):
     return render(request, "galleries/index.html", {'gallery_list': gallery_list})
 
 @require_safe
+def robots(request: HttpRequest):
+    return render(request, "robots.txt", content_type="text/plain")
+
+@require_safe
 def redirect_home(request: HttpRequest, _: Any):
     return HttpResponseRedirect('/')
 
@@ -437,11 +441,17 @@ def set_discord_user(request: HttpRequest):
 @login_required
 @permission_required('mediaserver.change_media')
 def set_discord_user_tag(request: HttpRequest):
-    discord_user = DiscordCreator.objects.get_or_create(username=request.POST['discord_user'])[0]
+    discord_user = DiscordCreator.objects.get_or_create(username=request.POST['creator'])[0]
     if request.POST['tag'] and request.POST['tag'] != '':
         tag = Tag.objects.get_or_create(namespace='creator', tagname=request.POST['tag'])[0]
+        prev_tag = discord_user.tag
         discord_user.tag = tag
         discord_user.save()
+
+        if prev_tag:
+            prev_tag.count_uses()
+        tag.count_uses()
+
         return HttpResponse(status=200)
     return HttpResponse(status=200)
 

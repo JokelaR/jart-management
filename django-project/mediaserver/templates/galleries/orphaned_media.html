@@ -92,7 +92,7 @@
     function add_media_to_gallery(element, event) {
         const media_id = event.target.form['uuid'].value;
         const gallery_id = gallery_field.value;
-        let request = new Request(`/modify/gallery/${gallery_id}/associate_one_item`, {
+        let request = new Request(`/modify/gallery/${gallery_id}/associate_single_media`, {
             method: "POST",
             body: media_id,
             headers: { 'X-CSRFToken': csrf_token }
