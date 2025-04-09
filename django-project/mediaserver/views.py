@@ -293,7 +293,7 @@ def diff_tags(media: Media, current_tags: list[dict[str, str]], new_tags: list[d
                 removed_tag = media.tags.get(namespace=tag['namespace'], tagname=tag['tagname'])
                 media.tags.remove(removed_tag)
                 print(f'removed {removed_tag} from {media}')
-                removed_tag.count_tags()
+                removed_tag.count_uses()
 
         for tag in new_tags:
             if tag not in current_tags:
@@ -312,7 +312,7 @@ def diff_creator_tags(media: Media, current_tags: list[dict[str, str]], new_tags
                 removed_tag = media.creator_tags.get(tagname=tag['tagname'])
                 media.creator_tags.remove(removed_tag)
                 print(f'removed {removed_tag} from {media}')
-                removed_tag.count_tags()
+                removed_tag.count_uses()
 
         for tag in new_tags:
             if tag not in current_tags:
