@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
 from django.views.decorators.http import require_http_methods, require_safe
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.list import ListView
@@ -191,7 +192,7 @@ def get_gallery_media(request: HttpRequest, gallery_id: int):
             ] if item.discord_creator and item.discord_creator.tag else []
 
         media.append({
-            'uuid': item.uuid.hex,
+            'uuid': item.uuid,
             'url': item.file.url,
             'type': item.type,
             'title': item.title,
@@ -483,7 +484,7 @@ class CreatorTagListView(ListView):
 
     def get_queryset(self):
         key = self.kwargs.get('tag', '')
-        q = Q(creator_tags__tagname__iexact=key) | Q(discord_creator__username=key)
+        q = Q(creator_tags__tagname__iexact=key) | Q(discord_creator__username=key) | Q(discord_creator__tag__tagname__iexact=key)
         queryset = Media.objects.filter(q).order_by('uploaded_date').distinct().reverse()
         return queryset
     
