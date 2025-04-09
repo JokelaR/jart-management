@@ -18,7 +18,13 @@
 {% endblock gallery-title %}
 
 {% block description_end %}
-<p>Originally seen at <a href="/gallery/{{media.media_gallery.first.id}}">{{media.media_gallery.first.title}}</a></p>
+{% with gallery=media.media_gallery.first %}
+{% if gallery and gallery.visible or perms.mediaserver.change_gallery %}
+<p>Originally seen at <a href="/gallery/{{gallery.id}}">{{gallery.title}}</a></p>
+{% else %}
+<p style="color: gray; font-style: italic;">This post has not appeared in a gallery yet.</p>
+{% endif %}
+{% endwith %}
 {% endblock description_end %}
 
 {% block pagination %}

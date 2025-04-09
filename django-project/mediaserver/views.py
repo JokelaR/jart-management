@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, get_user
 from django.contrib.auth.models import AnonymousUser
 from django.views.decorators.http import require_http_methods, require_safe
 from django.views.decorators.csrf import csrf_exempt
@@ -51,6 +51,10 @@ def galleries(request: HttpRequest):
 @require_safe
 def gallery(request: HttpRequest, gallery_id: int):
     gallery = get_object_or_404(Gallery, pk=gallery_id)
+    if not gallery.visible:
+        user = get_user(request)
+        if not user.has_perm('mediaserver.change_gallery'):
+            raise Http404(f'Gallery {gallery_id} is not public yet')
     items = gallery.media_items.order_by('galleryorder')
     return render(request, "galleries/gallery.html", {'gallery': gallery, 'page_obj': items})
 
