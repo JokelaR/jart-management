@@ -37,6 +37,7 @@ urlpatterns = [
     path("tags/<str:namespace>/<str:tag>", views.TagListView.as_view(template_name="galleries/tag_list.html"), name="media_by_tag"),
     path("tags/", views.all_tags, name="all_tags"),
     path("tags/discordLink", views.set_discord_user_tag, name="set_discord_user_tag"),
+    path("objects/discordUnlink", views.remove_discord_user, name="remove_discord_user"),
 
     path("tags/autocomplete/", views.tags_by_startswith, name="tags_by_startswith"),
 

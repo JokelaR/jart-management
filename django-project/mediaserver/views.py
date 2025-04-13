@@ -445,6 +445,14 @@ def set_discord_user(request: HttpRequest):
 
 @login_required
 @permission_required('mediaserver.change_media')
+def remove_discord_user(request: HttpRequest):
+    media = Media.objects.get(uuid=request.POST['uuid'])
+    media.discord_creator = None
+    media.save()
+    return HttpResponse(status=200)
+
+@login_required
+@permission_required('mediaserver.change_media')
 def set_discord_user_tag(request: HttpRequest):
     discord_user = DiscordCreator.objects.get_or_create(username=request.POST['creator'])[0]
     if request.POST['tag'] and request.POST['tag'] != '':
