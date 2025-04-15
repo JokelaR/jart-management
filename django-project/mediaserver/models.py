@@ -12,22 +12,27 @@ class Tag(models.Model):
 
     tag_count = models.IntegerField(default=0)
 
+    # Forward reference to Media model fields
+    creator_tags: "models.ManyToManyField[Tag, Media]"
+    tags: "models.ManyToManyField[Tag, Media]"
+    # Forward reference to discord model field
+    assoc_discord: "models.Manager[DiscordCreator]"
+
+
     def count_uses(self):
         self.tag_count = self.tags.count() + self.creator_tags.count()
-        self.tag_count += self.discordcreator_set.count() # type: ignore
-        print(f'{self.namespace}:{self.tagname}, {self.tag_count} instances')
+        discord_creator = self.assoc_discord.first()
+        if discord_creator: 
+            self.tag_count += discord_creator.count_uses()
         self.save()
         if(self.tag_count == 0):
             self.delete()
 
-    # Forward reference to Media model fields
-    creator_tags: "models.ManyToManyField"
-    tags: "models.ManyToManyField"
 
     @staticmethod
     def clear_orphans():
         counter = 0
-        for tag in Tag.objects.filter(tags=None).filter(creator_tags=None):
+        for tag in Tag.objects.filter(tags=None).filter(creator_tags=None).filter(assoc_discord=None):
             counter += 1
             tag.delete()
         print(f"Deleted {counter} orphaned tags")
@@ -35,7 +40,11 @@ class Tag(models.Model):
     @staticmethod
     def count_tags():
         for tag in Tag.objects.all():
+            precount = tag.tag_count
             tag.count_uses()
+            postcount = tag.tag_count
+            if postcount != precount:
+                print(f'{tag.namespace}:{tag.tagname} | {precount} -> {postcount}')
 
     def __str__(self):
         return f'{self.namespace}:{self.tagname}'
@@ -45,12 +54,19 @@ class Tag(models.Model):
 
 class DiscordCreator(models.Model):
     username = models.CharField(max_length=256)
-    tag = models.ForeignKey(Tag, on_delete=models.SET_NULL, null=True)
+    tag = models.ForeignKey(Tag, on_delete=models.SET_NULL, null=True, related_name='assoc_discord')
+
+    # Forward reference to Media model field
+    assoc_media: "models.Manager[Media]"
+
+    def count_uses(self):
+        uses = self.assoc_media.count()
+        return uses
 
 class Media(models.Model):
     file = models.FileField(default='default.jpg')
     creator_tags = models.ManyToManyField(Tag, blank=True, related_name='creator_tags')
-    discord_creator = models.ForeignKey(DiscordCreator, on_delete=models.SET_NULL, null=True)
+    discord_creator = models.ForeignKey(DiscordCreator, on_delete=models.SET_NULL, null=True, related_name='assoc_media')
     title = models.CharField(max_length=256, blank=True)
     uploader = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     description = models.TextField(blank=True)
