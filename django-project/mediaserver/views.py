@@ -172,6 +172,8 @@ def create_media_with_token(request: HttpRequest):
     
     media = Media(file=file, discord_creator=creator_object, description=description, type=type, height=height, width=width, loop=False, uploader=TOKEN_UPLOAD_USER)
     media.save()
+    if creator_object.tag:
+        creator_object.tag.count_uses()
     return JsonResponse({'created_uuid': media.uuid}, status=200)
 
 @require_safe
@@ -441,14 +443,20 @@ def set_discord_user(request: HttpRequest):
     discord_user = DiscordCreator.objects.get_or_create(username=request.POST['discord_user'])[0]
     media.discord_creator = discord_user
     media.save()
+    if discord_user.tag:
+        discord_user.tag.count_uses()
     return HttpResponse(status=200)
 
 @login_required
 @permission_required('mediaserver.change_media')
 def remove_discord_user(request: HttpRequest):
     media = Media.objects.get(uuid=request.POST['uuid'])
+    discord_user = media.discord_creator
     media.discord_creator = None
     media.save()
+    if discord_user and discord_user.tag:
+        discord_user.tag.count_uses()
+
     return HttpResponse(status=200)
 
 @login_required
