@@ -504,7 +504,7 @@ class CreatorTagListView(ListView):
 
     def get_queryset(self):
         key = self.kwargs.get('tag', '')
-        q = Q(creator_tags__tagname__iexact=key) | Q(discord_creator__username=key) | Q(discord_creator__tag__tagname__iexact=key)
+        q = Q(creator_tags__tagname__iexact=key) | Q(discord_creator__tag__tagname__iexact=key)
         queryset = Media.objects.filter(q).order_by('uploaded_date').distinct().reverse()
         return queryset
     
