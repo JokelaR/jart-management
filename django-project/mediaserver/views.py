@@ -280,7 +280,7 @@ def modify_media(request: HttpRequest):
             media = Media.objects.get(uuid=request.body.decode())
             for tag in media.tags.all():
                 media.tags.remove(tag)
-                tag.count_tags()
+                tag.count_uses()
             media.delete()
             return HttpResponse(f'Deleted {request.body}')
         else:
@@ -485,12 +485,12 @@ def auto_delete_file_on_delete(sender: Media, instance: Media, **kwargs):
     for tag in instance.tags.all():
         instance.tags.remove(tag)
         print(f'removed {tag} while deleting {instance}')
-        tag.count_tags()
+        tag.count_uses()
     
     for tag in instance.creator_tags.all():
         instance.creator_tags.remove(tag)
         print(f'removed {tag} while deleting {instance}')
-        tag.count_tags()
+        tag.count_uses()
 
     if instance.file and instance.type != 'embed':
         if os.path.isfile(instance.file.path):
