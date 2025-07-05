@@ -14,6 +14,24 @@
         color: rgba(255, 255, 255, 0.8);
     }
 }
+#reminder-banner {
+    --tagcolor: rgb(1, 248, 155);
+    border: 1px solid var(--tagcolor);
+    color: var(--tagcolor);
+    background-color: color-mix(in srgb, var(--tagcolor) 20%, transparent);
+    padding: 1rem;
+    margin: 1rem;
+    border-radius: 0.75rem;
+    
+    h2, p {
+        margin: 0px;
+        padding: 0px;
+    }
+    
+    h2 {
+        margin-bottom: 0.5rem;
+    }
+}
 .album-image {
     max-width:100%;
     margin-bottom: 1rem;

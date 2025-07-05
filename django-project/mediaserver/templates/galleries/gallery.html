@@ -25,6 +25,12 @@
             <h2>{{ gallery.title }}{% if perms.mediaserver.change_gallery %}<span>&nbsp[<a href="{% url 'edit_gallery' gallery.id %}">Edit</a>]</span>{% endif %}</h2>
             <p>{{ gallery.created_date|date:"jS F, Y" }}</p>
         </div>
+        {% if istoday %}
+        <div id="reminder-banner">
+            <h2>Artists!</h2>
+            <p>Want to see your fanart here? Art can be submitted in the JADS #share-stuff-you-made channel by sending it, right clicking on your message, and selecting Apps 🡒 Submit Stream Fanart.</p>
+        </div>
+        {% endif %}
         {% endblock gallery-title %}
         {% for media in page_obj %}
             <div class="album-image">

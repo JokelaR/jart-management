@@ -56,7 +56,8 @@ def gallery(request: HttpRequest, gallery_id: int):
         if not user.has_perm('mediaserver.change_gallery'):
             raise Http404(f'Gallery {gallery_id} is not public yet')
     items = gallery.media_items.order_by('galleryorder')
-    return render(request, "galleries/gallery.html", {'gallery': gallery, 'page_obj': items})
+    istoday = gallery.created_date.date() == datetime.today().date()
+    return render(request, "galleries/gallery.html", {'gallery': gallery, 'page_obj': items, 'istoday': istoday})
 
 @require_safe
 def latest_gallery(request: HttpRequest):
