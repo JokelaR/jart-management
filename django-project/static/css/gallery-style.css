@@ -14,8 +14,13 @@
         color: rgba(255, 255, 255, 0.8);
     }
 }
-#reminder-banner {
+#reminder {
     --tagcolor: rgb(1, 248, 155);
+}
+#tag-description {
+    --tagcolor: rgb(207, 207, 207);
+}
+.banner {
     border: 1px solid var(--tagcolor);
     color: var(--tagcolor);
     background-color: color-mix(in srgb, var(--tagcolor) 20%, transparent);

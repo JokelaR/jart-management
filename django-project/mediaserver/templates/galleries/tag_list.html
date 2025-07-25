@@ -12,9 +12,13 @@
 {% endblock extra-metadata %}
 
 {% block gallery-title %}
-<h2>Tag: {{tag.namespace}}:{{tag.tagname}}</h2>
-{{ tag.description|linebreaksbr|urlize }}
-<p>Seen {{tag.tag_count}} time{{ tag.tag_count|pluralize }}</p>
+<h2>Tag: {{tag.namespace}}:{{tag.tagname}} ({{tag.tag_count}} image{{ tag.tag_count|pluralize }})</h2>
+{% if tag.description %}
+<div id="tag-description" class="banner">
+    <h2>About</h2>
+    {{ tag.description|linebreaksbr|urlize }}
+</div>
+{% endif %}
 {% endblock gallery-title %}
 
 {% block description_end %}

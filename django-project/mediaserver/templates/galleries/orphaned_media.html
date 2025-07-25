@@ -72,7 +72,9 @@
         <div>
             {% for media in orphaned_media %}
                 <div class="media">
-                    {% if 'image/' in media.type %}
+                    {% if media.type == 'image/gif' %}
+                    <img class="thumb" src="{{ media.file }}" alt="{{ media.file.name }}">
+                    {% elif 'image/' in media.type %}
                     <img class="thumb" src="{{ media.file|thumbnail_url:'100' }}" alt="{{ media.file.name }}">
                     {% elif 'video/' in media.type %}
                     <video class="thumb" src="/media/{{ media.file }}" controls></video>
