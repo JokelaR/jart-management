@@ -516,7 +516,7 @@ class CreatorTagListView(ListView):
         ).order_by(
             'galleryorder__gallery__created_date',
             'uploaded_date'
-        ).distinct()
+        ).distinct().reverse()
         return queryset
     
     def get_context_data(self, **kwargs):
