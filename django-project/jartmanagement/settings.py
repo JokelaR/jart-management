@@ -74,6 +74,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'mediaserver.context_processors.brand_context',
             ],
         },
     },
@@ -98,7 +99,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('POSTGRES_DATABASE'),
-        'USER': 'janart',
+        'USER': os.getenv('POSTGRES_USERNAME'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD')
     }
 }
@@ -148,7 +149,7 @@ STORAGES = {
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = '/home/caddy/jart-static'
+STATIC_ROOT = os.getenv("DJANGO_STATIC_ROOT")
 STATICFILES_DIRS = [
      os.path.join('static/css'),
      os.path.join('static/js'),
@@ -161,7 +162,7 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_ROOT = os.getenv("DJANGO_MEDIA_ROOT")
-MEDIA_URL = os.getenv("DJANGO_MEDIA_URL")
+MEDIA_URL = 'media/'
 
 THUMBNAIL_ALIASES = {
     '': {
@@ -192,11 +193,13 @@ LOGIN_REDIRECT_URL = "/"
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
-CSRF_TRUSTED_ORIGINS = [
-    'https://janart.bulder.fi',
-]
 
 a_hosts = os.getenv("DJANGO_ALLOWED_HOSTS")
+if a_hosts is None:
+    CSRF_TRUSTED_ORIGINS = []
+else:
+    CSRF_TRUSTED_ORIGINS = a_hosts.split(',')   
+
 if a_hosts is None:
     ALLOWED_HOSTS = []
 else:
@@ -204,3 +207,12 @@ else:
 
 REMOTE_TOKEN = os.getenv("REMOTE_TOKEN") # Token used for remote file submissions
 REMOTE_USERNAME = os.getenv("REMOTE_USERNAME") # Username used for remote file submissions
+
+SITE_BRAND_NAME = os.getenv("SITE_BRAND_NAME")
+SITE_BRAND_URL = os.getenv("SITE_BRAND_URL")
+SITE_BRAND_ICON = os.getenv("SITE_BRAND_ICON")
+SITE_BRAND_LOGO = os.getenv("SITE_BRAND_LOGO")
+SITE_BRAND_DESC = os.getenv("SITE_BRAND_DESC")
+SITE_BRAND_EMBED = os.getenv("SITE_BRAND_EMBED")
+SITE_BRAND_PLEA = os.getenv("SITE_BRAND_PLEA")
+SITE_BRAND_COLOR = os.getenv("SITE_BRAND_COLOR")

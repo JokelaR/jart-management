@@ -4,18 +4,23 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}Janart{% endblock %}</title>
+        <title>{% block title %}{{ site_brand_name }}{% endblock %}</title>
         <link rel="stylesheet" href="{% static 'common.css' %}">
         <link rel="stylesheet" href="{% static 'normalize.css' %}">
-        <meta name="description" content="{% block page-description %}The Joseph Anderson Fanart Repository{% endblock %}">
-        <meta content="{% block embed-title %}Janart{% endblock %}" property="og:title">
-        <meta content="{% block embed-description %}Find all of your favorite chans here{% endblock %}" property="og:description">
-        <meta content="https://janart.bulder.fi" property="og:url">
-        <meta content="{% static 'janart_icon.png' %}" property="og:imgage">
-        <meta name="twitter:image" content="{% static 'janart_icon.png' %}">
+        <meta name="description" content="{% block page-description %}{{ site_brand_desc }}{% endblock %}">
+        <meta content="{% block embed-title %}{{ site_brand_name }}{% endblock %}" property="og:title">
+        <meta content="{% block embed-description %}{{ site_brand_embed }}{% endblock %}" property="og:description">
+        <meta content="{{ site_brand_url }}" property="og:url">
+        <meta content="{% static site_brand_icon %}" property="og:image">
+        <meta name="twitter:image" content="{% static site_brand_icon %}">
         <meta content="#43B581" data-react-helmet="true" name="theme-color">
         {% block extra-metadata %}{% endblock extra-metadata %}
-        <link rel="shortcut icon" href="{% static 'janart_icon.png' %}" type="image/png">
+        <link rel="shortcut icon" href="{% static site_brand_icon %}" type="image/png">
+        <style>
+            html {
+                --background-color: {{ site_brand_color }};
+            }
+        </style>
         {% block page-style %}{% endblock page-style %}
     </head>
     <body>

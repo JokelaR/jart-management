@@ -1,7 +1,7 @@
 {% extends "galleries/gallery.html" %}
 
-{% block title %}Janart - Tag: {{tag.tagname}}{% endblock title %}
-{% block embed-title %}Janart | Tag: {{tag.namespace}}:{{tag.tagname}}{% endblock embed-title %}
+{% block title %}{{ site_brand_name }} - Tag: {{tag.tagname}}{% endblock title %}
+{% block embed-title %}{{ site_brand_name }} | Tag: {{tag.namespace}}:{{tag.tagname}}{% endblock embed-title %}
 {% block page-description %}{{tag.tag_count}} fanart tagged with {{tag.namespace}}:{{tag.tagname}}{% endblock %}
 {% block extra-metadata %}
     {% if tag.namespace == "creator" %}

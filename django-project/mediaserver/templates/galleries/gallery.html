@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load media_utility %}
-{% block title %}Janart - {{gallery.title}}{% endblock title %}
-{% block embed-title %}Janart | {{gallery.title}}{% endblock embed-title %}
+{% block title %}{{ site_brand_name }} - {{gallery.title}}{% endblock title %}
+{% block embed-title %}{{ site_brand_name }} | {{gallery.title}}{% endblock embed-title %}
 
 {% block page-style %}
 <link rel="stylesheet" href="{% static 'gallery-style.css' %}">
@@ -28,7 +28,7 @@
         {% if istoday %}
         <div id="reminder" class="banner">
             <h2>Artists!</h2>
-            <p>Want to see your fanart here? Art can be submitted in the JADS #share-stuff-you-made channel by sending it, right clicking on your message, and selecting Apps 🡒 Submit Stream Fanart.</p>
+            <p>{{ site_brand_plea }}</p>
         </div>
         {% endif %}
         {% endblock gallery-title %}

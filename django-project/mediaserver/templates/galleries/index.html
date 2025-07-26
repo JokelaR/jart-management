@@ -2,7 +2,7 @@
 {% load static %}
 {% load media_utility %}
 
-{% block title %}Janart - Joseph Anderson Fanart Repository{% endblock title %}
+{% block title %}{{ site_brand_name}} - {{ site_brand_desc }}{% endblock title %}
 {% block page-description %}Archiving Joe Fanart since July 2023{% endblock %}
 {% block page-style %}<link rel="stylesheet" href="{% static 'index.css' %}">{% endblock page-style %}
 
@@ -41,7 +41,7 @@
     {% endif %}
 </main>
 <div itemscope itemtype="https://schema.org/WebSite">
-    <link itemprop="url" href="https://janart.bulder.fi" />
-    <meta itemprop="name" content="Janart" />
+    <link itemprop="url" href="{{ site_brand_url }}" />
+    <meta itemprop="name" content="{{ site_brand_name }}" />
 </div>
 {% endblock body-content %}
