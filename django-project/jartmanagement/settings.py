@@ -28,6 +28,8 @@ SECRET_KEY = os.getenv("DJANGO_SECRET")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (os.getenv("JANART_DEBUG") == 'True')
+from django.core.management.commands.runserver import Command as runserver
+runserver.default_port = int(os.getenv("JANART_DEBUG_PORT", 8000))
 
 # Application definition
 
@@ -195,12 +197,25 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 a_hosts = os.getenv("DJANGO_ALLOWED_HOSTS")
+if DEBUG:
+    CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://127.0.0.1']
 if a_hosts is None:
     CSRF_TRUSTED_ORIGINS = []
 else:
-    CSRF_TRUSTED_ORIGINS = a_hosts.split(',')   
+    _hosts = []
+    for host in a_hosts.split(','):
+        if host.startswith('http://') or host.startswith('https://'):
+            _hosts.append(host)
+        elif host == 'localhost':
+            _hosts.append('http://localhost')
+        else:
+            _hosts.append(f'https://{host}')
 
-if a_hosts is None:
+    CSRF_TRUSTED_ORIGINS = _hosts
+
+if DEBUG:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+elif a_hosts is None:
     ALLOWED_HOSTS = []
 else:
     ALLOWED_HOSTS = a_hosts.split(',')

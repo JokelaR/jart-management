@@ -23,8 +23,10 @@ from uuid import UUID
 
 # Create your views here.
 
-
-TOKEN_UPLOAD_USER = get_user_model().objects.get(username=REMOTE_USERNAME)
+try:
+    TOKEN_UPLOAD_USER = get_user_model().objects.get(username=REMOTE_USERNAME)
+except:
+    TOKEN_UPLOAD_USER = None
 
 @require_safe
 def index(request: HttpRequest):
@@ -146,7 +148,7 @@ def create_media(request: HttpRequest):
 @require_http_methods(['POST'])
 def create_media_with_token(request: HttpRequest):
     token = request.POST.get('token')
-    if not token or token == '' or token != REMOTE_TOKEN:
+    if not token or token == '' or token != REMOTE_TOKEN or TOKEN_UPLOAD_USER is None:
         return JsonResponse({'error': 'Token validation failed'}, status=401)
     request_data = request.POST.copy()
     
