@@ -55,7 +55,7 @@ def gallery(request: HttpRequest, gallery_id: int):
         user = get_user(request)
         if not user.has_perm('mediaserver.change_gallery'):
             raise Http404(f'Gallery {gallery_id} is not public yet')
-    items = gallery.media_items.order_by('galleryorder')
+    items = gallery.media_items.select_related('discord_creator', 'discord_creator__tag').order_by('galleryorder')
     istoday = gallery.created_date.date() == datetime.today().date()
     return render(request, "galleries/gallery.html", {'gallery': gallery, 'page_obj': items, 'istoday': istoday})
 
@@ -191,7 +191,7 @@ def get_media_gallery(request: HttpRequest, media_uuid: UUID):
 @permission_required('mediaserver.change_gallery')
 def get_gallery_media(request: HttpRequest, gallery_id: int):
     gallery = get_object_or_404(Gallery, pk=gallery_id)
-    items = gallery.media_items.order_by('galleryorder')
+    items = gallery.media_items.select_related('discord_creator', 'discord_creator__tag').order_by('galleryorder')
     media = []
     for item in items:
         discord_creator = item.discord_creator.username if item.discord_creator else ""
@@ -440,7 +440,7 @@ def orphaned_media(request: HttpRequest):
 @login_required
 @permission_required('mediaserver.change_media')
 def set_discord_user(request: HttpRequest):
-    media = Media.objects.get(uuid=request.POST['media_uuid'])
+    media = Media.objects.select_related('discord_creator', 'discord_creator__tag').get(uuid=request.POST['media_uuid'])
     discord_user = DiscordCreator.objects.get_or_create(username=request.POST['discord_user'])[0]
     media.discord_creator = discord_user
     media.save()
@@ -451,7 +451,7 @@ def set_discord_user(request: HttpRequest):
 @login_required
 @permission_required('mediaserver.change_media')
 def remove_discord_user(request: HttpRequest):
-    media = Media.objects.get(uuid=request.POST['uuid'])
+    media = Media.objects.select_related('discord_creator', 'discord_creator__tag').get(uuid=request.POST['uuid'])
     discord_user = media.discord_creator
     media.discord_creator = None
     media.save()
@@ -505,8 +505,18 @@ class CreatorTagListView(ListView):
 
     def get_queryset(self):
         key = self.kwargs.get('tag', '')
-        q = Q(creator_tags__tagname__iexact=key) | Q(discord_creator__tag__tagname__iexact=key)
-        queryset = Media.objects.filter(q).order_by('uploaded_date').distinct().reverse()
+        queryset = Media.objects.filter(
+            Q(creator_tags__tagname__iexact=key) | Q(discord_creator__tag__tagname__iexact=key)
+        ).filter(
+            media_gallery__isnull=False
+        ).select_related(
+            'discord_creator'
+        ).prefetch_related(
+            'creator_tags', 'media_gallery'
+        ).order_by(
+            'galleryorder__gallery__created_date',
+            'uploaded_date'
+        ).distinct()
         return queryset
     
     def get_context_data(self, **kwargs):
@@ -527,9 +537,28 @@ class TagListView(ListView):
         namespace = self.kwargs.get('namespace', '')
         
         if namespace == 'all':
-            queryset = Media.objects.filter(tags__tagname__iexact=tag).order_by('uploaded_date').distinct().reverse()
+            queryset = Media.objects.filter(
+                tags__tagname__iexact=tag
+            ).filter(
+                media_gallery__isnull=False
+            ).prefetch_related(
+                'tags', 'media_gallery'
+            ).order_by(
+                'galleryorder__gallery__created_date',
+                'uploaded_date'
+            ).distinct().reverse()
         else:
-            queryset = Media.objects.filter(tags__namespace__iexact=namespace, tags__tagname__iexact=tag).order_by('uploaded_date').distinct().reverse()
+            queryset = Media.objects.filter(
+                tags__namespace__iexact=namespace, 
+                tags__tagname__iexact=tag
+            ).filter(
+                media_gallery__isnull=False
+            ).prefetch_related(
+                'tags', 'media_gallery'
+            ).order_by(
+                'galleryorder__gallery__created_date',
+                'uploaded_date'
+            ).distinct().reverse()
         return queryset
     
     def get_context_data(self, **kwargs):
