@@ -167,6 +167,19 @@
                 pixelatedStyle.disabled = !pixelatedStyle.disabled;
             }
         });
+        lightbox.pswp.ui.registerElement({
+            name: 'refreshButton',
+            title: 'Reload video',
+            ariaLabel: 'Reload video',
+            order: 10,
+            isButton: true,
+            html: '🔄',
+            onClick: (event, el) => {
+                if (lightbox.pswp.currSlide.content.element.tagName.toLowerCase() == 'video') {
+                    lightbox.pswp.currSlide.content.element.load();
+                }
+            }
+        })
     });
         
     lightbox.on('closingAnimationEnd', () => {
