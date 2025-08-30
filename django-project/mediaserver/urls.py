@@ -33,8 +33,8 @@ urlpatterns = [
     path("modify/gallery/<int:gallery_id>/associate_media", views.associate_media, name="associate_media"),
     path("modify/gallery/<int:gallery_id>/associate_single_media", views.add_single_media, name="add_single_media"),
 
-    path("creator/<str:tag>", views.CreatorTagListView.as_view(template_name="galleries/tag_list.html"), name="media_by_creator_tag"),
-    path("tags/<str:namespace>/<str:tag>", views.TagListView.as_view(template_name="galleries/tag_list.html"), name="media_by_tag"),
+    re_path(r'^creator/(?P<tag>.+?)$', views.CreatorTagListView.as_view(template_name="galleries/tag_list.html"), name="media_by_creator_tag"),
+    re_path(r'^tags/(?P<namespace>\w+)/(?P<tag>.+?)$', views.TagListView.as_view(template_name="galleries/tag_list.html"), name="media_by_tag"),
     path("tags/", views.all_tags, name="all_tags"),
     path("tags/discordLink", views.set_discord_user_tag, name="set_discord_user_tag"),
     path("objects/discordUnlink", views.remove_discord_user, name="remove_discord_user"),
