@@ -35,6 +35,9 @@ urlpatterns = [
 
     re_path(r'^creator/(?P<tag>.+?)$', views.CreatorTagListView.as_view(template_name="galleries/tag_list.html"), name="media_by_creator_tag"),
     re_path(r'^tags/(?P<namespace>\w+)/(?P<tag>.+?)$', views.TagListView.as_view(template_name="galleries/tag_list.html"), name="media_by_tag"),
+
+    path("gallery/media/<uuid:media_uuid>", views.MediaView.as_view(template_name="galleries/media_item.html"), name="media_detail"),
+
     path("tags/", views.all_tags, name="all_tags"),
     path("tags/discordLink", views.set_discord_user_tag, name="set_discord_user_tag"),
     path("objects/discordUnlink", views.remove_discord_user, name="remove_discord_user"),

@@ -499,6 +499,26 @@ def auto_delete_file_on_delete(sender: Media, instance: Media, **kwargs):
         if os.path.isfile(instance.file.path):
             os.remove(instance.file.path)
 
+class MediaView(ListView):
+    model = Media
+    allow_empty = False
+
+    def get_queryset(self):
+        key = self.kwargs.get('media_uuid', '')
+        queryset = Media.objects.filter(uuid=key
+            ).select_related('discord_creator', 'discord_creator__tag'
+            ).prefetch_related('creator_tags', 'tags', 'media_gallery')
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            media = Media.objects.select_related('discord_creator', 'discord_creator__tag').prefetch_related('creator_tags', 'tags', 'media_gallery').get(uuid=self.kwargs.get('media_uuid'))
+            context['page_obj'] = [media]
+
+        except ObjectDoesNotExist:
+            raise Http404(f'No media with UUID "{self.kwargs.get("media_uuid")}"')
+        return context
 
 class CreatorTagListView(ListView):
     model = Media

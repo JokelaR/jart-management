@@ -33,9 +33,10 @@
         {% endif %}
         {% endblock gallery-title %}
         {% for media in page_obj %}
-            <div class="album-image">
+        <div class="album-image">
             {% if 'embed' in media.type %}
             <a href="{{ media.embeddedmedia.url }}?rel=0"
+                class="album-media-item"
                 data-pswp-width="{{media.width}}"
                 data-pswp-height="{{media.height}}"
                 data-pswp-embed="true"
@@ -50,68 +51,70 @@
                 </iframe>
             </a>
             {% elif 'image/' in media.type %}
-                <a href="{{ media.file.url }}"
-                    data-pswp-width="{{media.width}}"
-                    data-pswp-height="{{media.height}}"
-                    target="_blank">
-                    <img src="{{ media.file.url }}" alt="{{media.title}}" {% image_size media.width media.height %} loading="lazy">
-                </a>
+            <a href="{{ media.file.url }}"
+                class="album-media-item"
+                data-pswp-width="{{media.width}}"
+                data-pswp-height="{{media.height}}"
+                target="_blank">
+                <img src="{{ media.file.url }}" alt="{{media.title}}" {% image_size media.width media.height %} loading="lazy">
+            </a>
             {% elif 'video/' in media.type %}
-                <a href="{{ media.file.url }}"
-                    data-pswp-width="{{media.width}}"
-                    data-pswp-height="{{media.height}}"
-                    data-pswp-video-src="{{media.file.url}}"
-                    data-pswp-video-loop={{media.loop}}
-                    target="_blank">
-                    <video src="{{ media.file.url }}" controls {% if media.loop %}loop="true"{% endif %}>
-                </a>
+            <a href="{{ media.file.url }}"
+                class="album-media-item"
+                data-pswp-width="{{media.width}}"
+                data-pswp-height="{{media.height}}"
+                data-pswp-video-src="{{media.file.url}}"
+                data-pswp-video-loop={{media.loop}}
+                target="_blank">
+                <video src="{{ media.file.url }}" controls {% if media.loop %}loop="true"{% endif %}>
+            </a>
             {% else %}
-                <p class="unsupportedFiletypePlaceholder">Unsupported Filetype</p>
+            <p class="unsupportedFiletypePlaceholder">Unsupported Filetype</p>
             {% endif %}
-                <span class="mediaDescription">
-                    {% autoescape on %}
-                    {% if media.title and media.title.strip %}<strong>{{media.title}}</strong>{% endif %}
-                    {% if media.creators%}
-                    <div class="tagContainer">
-                    {% for tag in media.creators %}
-                    <a data-tag-namespace="creator" data-tag-tagname="{{tag.tagname}}" class="tag" href="/creator/{{tag.tagname}}" title="Creator: {{tag.tagname}}">
-                        <div class="tagLabel">
-                        {{tag.tagname}}
-                        </div>
-                        <div class="tagCount">{{tag.tag_count}}</div>
-                    </a>
-                    {% endfor %}
+            <span class="mediaDescription">
+                {% autoescape on %}
+                {% if media.title and media.title.strip %}<strong>{{media.title}}</strong>{% endif %}
+                {% if media.creators%}
+                <div class="tagContainer">
+                {% for tag in media.creators %}
+                <a data-tag-namespace="creator" data-tag-tagname="{{tag.tagname}}" class="tag" href="/creator/{{tag.tagname}}" title="Creator: {{tag.tagname}}">
+                    <div class="tagLabel">
+                    {{tag.tagname}}
                     </div>
-                    {% endif %}
-                    {% if media.description and media.description.strip %}
-                    <p class="creatorDescription">
-                        "{{media.description|linebreaksbr|urlize}}"
-                    </p>
-                    {% endif %}
-                    {% if media.uploaderDescription and media.uploaderDescription.strip %}
-                    <p class="uploaderDescription">
-                        {{media.uploaderDescription|linebreaksbr|urlize}}
-                    </p>
-                    {% endif %}
-                    {% if media.tags%}
-                    <div class="tagContainer">
-                    {% for tag in media.tags.all %}
-                    <a data-tag-namespace="{{tag.namespace}}" data-tag-tagname="{{tag.tagname}}" class="tag" href="/tags/{{tag.namespace|default:"all"}}/{{tag.tagname}}" title="{{tag.namespace}}:{{tag.tagname}}">
-                        <div class="tagLabel">
-                        {{tag.tagname}}
-                        </div>
-                        <div class="tagCount">{{tag.tag_count}}</div>
-                    </a>
-                    {% endfor %}
+                    <div class="tagCount">{{tag.tag_count}}</div>
+                </a>
+                {% endfor %}
+                </div>
+                {% endif %}
+                {% if media.description and media.description.strip %}
+                <p class="creatorDescription">
+                    "{{media.description|linebreaksbr|urlize}}"
+                </p>
+                {% endif %}
+                {% if media.uploaderDescription and media.uploaderDescription.strip %}
+                <p class="uploaderDescription">
+                    {{media.uploaderDescription|linebreaksbr|urlize}}
+                </p>
+                {% endif %}
+                {% if media.tags%}
+                <div class="tagContainer">
+                {% for tag in media.tags.all %}
+                <a data-tag-namespace="{{tag.namespace}}" data-tag-tagname="{{tag.tagname}}" class="tag" href="/tags/{{tag.namespace|default:"all"}}/{{tag.tagname}}" title="{{tag.namespace}}:{{tag.tagname}}">
+                    <div class="tagLabel">
+                    {{tag.tagname}}
                     </div>
-                    {% endif %}
-                    
-                    {% block description_end %}
-                    {% endblock description_end %}
-
-                    {% endautoescape %}
-                </span>
-            </div>
+                    <div class="tagCount">{{tag.tag_count}}</div>
+                </a>
+                {% endfor %}
+                </div>
+                {% endif %}
+                
+                {% block description_end %}
+                {% endblock description_end %}
+                {% endautoescape %}
+            </span>
+            <a class="permalink" href="/gallery/media/{{media.uuid}}" class="permalink" title="Direct link to this media">🔗</a>
+        </div>
         {% endfor %}
     </div>
 </main>
@@ -130,7 +133,7 @@
 
     const lightbox = new PhotoSwipeLightbox({
         gallery: '#galleryContainer',
-        children: '.album-image > a',
+        children: '.album-image > a.album-media-item',
         pswpModule: PhotoSwipe,
         bgOpacity: 1,
         clickToCloseNonZoomable: false,

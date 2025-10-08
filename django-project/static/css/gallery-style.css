@@ -47,6 +47,7 @@
     box-shadow: 0rem 0 0.5rem rgba(0, 0, 0, 0.55);
     scroll-margin-bottom: 1rem;
     overflow: hidden;
+    position: relative;
 
     img {
         height:auto;
@@ -67,6 +68,24 @@
         aspect-ratio: 16 / 9;
         border-radius: 0.25rem;
         margin-bottom: 1rem;
+    }
+    .permalink {
+        text-decoration: none;
+        font-size: 1.25rem;
+        padding: 0.1rem;
+        padding-bottom: 0.25rem;
+        padding-right: 0.25rem;
+        border: solid 1px #360000;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 0.25rem;
+        border-bottom-right-radius: 0.65rem;
+        position: absolute;
+        bottom: 0.5rem;
+        right: 0.5rem;
+    }
+    .permalink:hover
+    {
+        background-color: rgba(54, 0, 0, 0.50);
     }
 }
 
