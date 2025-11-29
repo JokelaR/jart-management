@@ -4,6 +4,9 @@
 {% block embed-title %}{{ site_brand_name }} | Fanart by {{page_obj.0.creators.0.tagname}}{% endblock embed-title %}
 {% block page-description %}{{tag.tag_count}} fanart created by {{page_obj.0.creators.0.tagname}}{% endblock %}
 
+{% block gallery-title %}
+{% endblock gallery-title %}
+
 {% block description_end %}
 {% with gallery=media.media_gallery.first %}
 {% if gallery and gallery.visible or perms.mediaserver.change_gallery %}
