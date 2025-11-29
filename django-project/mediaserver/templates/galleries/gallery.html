@@ -114,6 +114,8 @@
                 {% endautoescape %}
             </span>
             <a class="permalink" href="/gallery/media/{{media.uuid}}" class="permalink" title="Direct link to this media">🔗</a>
+            {% block media-element-end %}
+            {% endblock media-element-end %}
         </div>
         {% endfor %}
     </div>

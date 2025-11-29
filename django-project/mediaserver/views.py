@@ -8,7 +8,7 @@ from django.views.generic.list import ListView
 from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseRedirect, Http404
 from .models import *
 from .forms import *
-from jartmanagement.settings import REMOTE_USERNAME, REMOTE_TOKEN
+from jartmanagement.settings import REMOTE_USERNAME, REMOTE_TOKEN, HOLIDAY
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
 from django.db.models import Q
@@ -59,7 +59,11 @@ def gallery(request: HttpRequest, gallery_id: int):
             raise Http404(f'Gallery {gallery_id} is not public yet')
     items = gallery.media_items.select_related('discord_creator', 'discord_creator__tag').order_by('galleryorder')
     istoday = gallery.created_date.date() == datetime.today().date()
-    return render(request, "galleries/gallery.html", {'gallery': gallery, 'page_obj': items, 'istoday': istoday})
+    
+    if (HOLIDAY):
+        return render(request, "galleries/holiday.html", {'gallery': gallery, 'page_obj': items, 'istoday': istoday})
+    else:
+        return render(request, "galleries/gallery.html", {'gallery': gallery, 'page_obj': items, 'istoday': istoday})
 
 @require_safe
 def latest_gallery(request: HttpRequest):
