@@ -168,6 +168,10 @@ p {
     font-style: italic;
 }
 
+.creatorDescription a, .uploaderDescription a {
+    word-break: break-all;
+}
+
 .pagination {
     display: flex;
     justify-content: center;
