@@ -25,7 +25,7 @@ class Tag(models.Model):
         if discord_creator: 
             self.tag_count += discord_creator.count_uses()
         self.save()
-        if(self.tag_count == 0):
+        if(self.tag_count <= 0):
             self.delete()
 
 

@@ -20,6 +20,12 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ['namespace', 'tagname', 'tag_count']
     list_filter = ['namespace', ('description', admin.EmptyFieldListFilter), OrphanTagFilter]
     search_fields = ['tagname', 'namespace']
+    actions = ['check_tag_users']
+
+    @admin.action(description='Check tag users')
+    def check_tag_users(self, request, queryset):
+        for tag in queryset:
+            tag.count_uses()
 
 # Register your models here.
 admin.site.register(Media)
