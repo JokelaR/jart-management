@@ -17,7 +17,8 @@ a {
 .tag[data-tag-namespace="creator"] { --tagcolor: rgb(187, 58, 58); }
 .tag[data-tag-namespace="game"] { --tagcolor: rgb(159, 125, 255); }
 .tag[data-tag-namespace="anime"] { --tagcolor: rgb(220, 125, 255); }
-.tag[data-tag-namespace="chan"] { --tagcolor: rgb(78, 203, 150);}
+.tag[data-tag-namespace="chan"] { --tagcolor: rgb(78, 203, 150); }
+.tag[data-tag-namespace="character"] { --tagcolor: rgb(78, 203, 150); }
 .tag[data-tag-namespace="meta"] { --tagcolor: rgb(63, 141, 224); }
 .tag {
     --tagcolor: rgb(187, 178, 58);
