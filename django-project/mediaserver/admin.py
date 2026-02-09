@@ -22,6 +22,12 @@ class TagAdmin(admin.ModelAdmin):
     search_fields = ['tagname', 'namespace']
     actions = ['check_tag_users']
 
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
+
     @admin.action(description='Check tag users')
     def check_tag_users(self, request, queryset):
         for tag in queryset:
