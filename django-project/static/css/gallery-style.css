@@ -134,7 +134,8 @@ div.pswp__item:has(.tagContainer > .tag[data-tag-tagname="Sex Warning"]) > .pswp
     bottom: 0;
     overflow-y: auto;
     height: max-content;
-    max-height: 60vh;
+    max-height: 80vh;
+    max-width: 410px !important;
     margin-left: 1rem;
 
     scrollbar-width: thin;
