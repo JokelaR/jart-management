@@ -1,0 +1,30 @@
+{% extends "galleries/gallery.html" %}
+{% load static %}
+
+{% block page-style %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'holiday.css' %}">
+{% endblock page-style %}
+
+{% block media-element-end %}
+<div class="holiday-gift-overlay">
+    <div class="door-1"></div>
+    <div class="door-2"></div>
+    <div class="ribbon-horizontal"></div>
+    <div class="ribbon-vertical"></div>
+    <div class="bow"></div>
+</div>
+{% endblock media-element-end %}
+
+{% block after-body %}
+<script>
+    let overlays = document.querySelectorAll('.holiday-gift-overlay');
+
+    for (const overlay of overlays) {
+        overlay.addEventListener('click', () => {
+            overlay.classList.add('opened');
+        });
+    }
+</script>
+{{ block.super }}
+{% endblock after-body %}

@@ -2,29 +2,48 @@
 {% load static %}
 
 {% block page-style %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static 'holiday.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
+{{ block.super }}
 {% endblock page-style %}
 
-{% block media-element-end %}
-<div class="holiday-gift-overlay">
-    <div class="door-1"></div>
-    <div class="door-2"></div>
-    <div class="ribbon-horizontal"></div>
-    <div class="ribbon-vertical"></div>
-    <div class="bow"></div>
-</div>
-{% endblock media-element-end %}
-
-{% block after-body %}
-<script>
-    let overlays = document.querySelectorAll('.holiday-gift-overlay');
-
-    for (const overlay of overlays) {
-        overlay.addEventListener('click', () => {
-            overlay.classList.add('opened');
-        });
-    }
-</script>
+{% block body-content %}
+<audio id="foolsAudio" src="{% static 'clowns.mp3' %}" preload="auto" style="display: none;"></audio>
 {{ block.super }}
-{% endblock after-body %}
+{% endblock body-content %}
+
+{% block ps-preinit %}
+    lightbox.on('change', () => {
+        const hasTag = lightbox.pswp.currSlide?.dynamicCaption?.element?.querySelector('[data-tag-tagname="Enter the Clowns"]');
+        console.log(hasTag);
+        if (hasTag) {
+            startFools();
+        }
+    });
+{% endblock ps-preinit %}
+
+{% block ps-postinit %}
+    let foolsStarted = false;
+
+    function startFools() {
+        if (foolsStarted) return;
+        foolsStarted = true;
+
+        confetti({
+            particleCount: 400,
+            spread: 70,
+            angle: 60,
+            startVelocity: 100,
+            origin: { x: 0, y: 1 },
+            zIndex: 100001
+        });
+        confetti({
+            particleCount: 400,
+            spread: 70,
+            angle: 120,
+            startVelocity: 100,
+            origin: { x: 1, y: 1 },
+            zIndex: 100001
+        });
+        document.getElementById('foolsAudio').play();
+    } 
+{% endblock ps-postinit %}

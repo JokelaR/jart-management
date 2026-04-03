@@ -102,7 +102,7 @@
         <h1>Galleries</h1>
         <fieldset>
             <legend>Target gallery</legend>
-            
+            <!--FIXME: activate the option last selected after moving an item-->
             <select name="gallery" size="{{galleries|length}}" id="">
             {% for gallery in galleries %}
                 <option value="{{ gallery.id }}">{{ gallery.title }}</option>

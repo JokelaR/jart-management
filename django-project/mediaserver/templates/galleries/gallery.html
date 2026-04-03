@@ -193,8 +193,6 @@
         albumImages[open_index].scrollIntoView({behavior: "smooth", block: "end"});
     });
 
-    lightbox.init();
-
     lightbox.addFilter('itemData', (itemData, index) => {
         const videoSrc = itemData.element.dataset.pswpVideoSrc;
         const loopVideo = itemData.element.dataset.pswpVideoLoop;
@@ -247,5 +245,11 @@
         }
         return isContentLoading;
     });
+
+    {% block ps-preinit %}{% endblock ps-preinit %}
+
+    lightbox.init();
+
+    {% block ps-postinit %}{% endblock ps-postinit %}
 </script>
 {% endblock after-body %}
