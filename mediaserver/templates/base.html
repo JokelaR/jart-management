@@ -11,11 +11,11 @@
         <meta content="{% block embed-title %}{{ site_brand_name }}{% endblock %}" property="og:title">
         <meta content="{% block embed-description %}{{ site_brand_embed }}{% endblock %}" property="og:description">
         <meta content="{{ site_brand_url }}" property="og:url">
-        <meta content="{% static site_brand_icon %}" property="og:image">
-        <meta name="twitter:image" content="{% static site_brand_icon %}">
+        <meta content="{{ site_brand_icon }}" property="og:image">
+        <meta name="twitter:image" content="{{ site_brand_icon }}">
         <meta content="#43B581" data-react-helmet="true" name="theme-color">
         {% block extra-metadata %}{% endblock extra-metadata %}
-        <link rel="shortcut icon" href="{% static site_brand_icon %}" type="image/png">
+        <link rel="shortcut icon" href="{{ site_brand_icon }}" type="image/png">
         <style>
             html {
                 --background-color: {{ site_brand_color }};

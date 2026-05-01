@@ -1,14 +1,13 @@
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import get_user_model, get_user
-from django.contrib.auth.models import AnonymousUser
 from django.views.decorators.http import require_http_methods, require_safe
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.list import ListView
 from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseRedirect, Http404
 from .models import *
 from .forms import *
-from jartmanagement.settings import REMOTE_USERNAME, REMOTE_TOKEN, HOLIDAY
+from jartmanagement.settings import REMOTE_USERNAME, REMOTE_TOKEN, DATABASE_TYPE
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
 from django.db.models import Q
@@ -60,7 +59,7 @@ def gallery(request: HttpRequest, gallery_id: int):
     items = gallery.media_items.select_related('discord_creator', 'discord_creator__tag').order_by('galleryorder')
     istoday = gallery.created_date.date() == datetime.today().date()
     
-    if (HOLIDAY):
+    if (request.site.settings.holiday_mode):
         return render(request, "galleries/holiday.html", {'gallery': gallery, 'page_obj': items, 'istoday': istoday})
     else:
         return render(request, "galleries/gallery.html", {'gallery': gallery, 'page_obj': items, 'istoday': istoday})
@@ -236,7 +235,10 @@ def get_gallery_metadata(request: HttpRequest, gallery_id: int):
 @require_http_methods(['GET'])
 @permission_required('mediaserver.change_gallery')
 def get_categories(request: HttpRequest):
-    categories = Gallery.objects.all().distinct('category').values_list('category', flat=True)
+    if DATABASE_TYPE == 'sqlite3':
+        categories = Gallery.objects.values_list('category', flat=True).distinct()
+    else:
+        categories = Gallery.objects.all().distinct('category').values_list('category', flat=True)
     return JsonResponse(list(categories), safe=False)
 
 @login_required

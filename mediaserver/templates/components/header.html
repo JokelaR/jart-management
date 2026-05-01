@@ -12,7 +12,7 @@
         </span>
     </span>
     <a href="/galleries" style="text-decoration: none !important;">
-        <img src="{% static site_brand_logo %}" alt="{{ site_brand_name }} Logo" height="80">
+        <img src="{{ site_brand_logo }}" alt="{{ site_brand_name }} Logo" height="80">
     </a>
     <span id="userContainer">
         <span>
@@ -20,6 +20,9 @@
             <a href="{% provider_login_url 'discord' %}">Discord Log-in</a>
         {% else %}
             {{user.username|escape}} (<a href="{% url 'account_logout' %}">Log Out</a>)
+            {% if user.is_staff %}
+                <a href="{% url 'admin:index' %}">Admin</a>
+            {% endif %}
         {% endif %}
         </span>
     </span>

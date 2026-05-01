@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Media, Gallery, Tag
+from .models import Media, Gallery, SiteSettings, Tag
 from django.http import HttpRequest
 from django.db.models import QuerySet
 
@@ -40,3 +40,4 @@ class TagAdmin(admin.ModelAdmin):
 admin.site.register(Media)
 admin.site.register(Gallery)
 admin.site.register(Tag, TagAdmin)
+admin.site.register(SiteSettings)

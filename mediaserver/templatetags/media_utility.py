@@ -3,7 +3,7 @@ from django import template
 register = template.Library()
 
 @register.filter(name='invert')
-def invert(value):
+def invert(value: object):
     return not value
 
 @register.filter(name='underscore_to_space')

@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (os.getenv("JANART_DEBUG") == 'True')
 from django.core.management.commands.runserver import Command as runserver
-runserver.default_port = int(os.getenv("JANART_DEBUG_PORT", 8000))
+runserver.default_port = os.getenv("JANART_DEBUG_PORT", '8000')
 
 # Application definition
 
@@ -60,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.sites.middleware.CurrentSiteMiddleware',
     'allauth.account.middleware.AccountMiddleware',
 ]
 
@@ -98,7 +99,8 @@ WSGI_APPLICATION = 'jartmanagement.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 if os.getenv("JANART_TESTING_DB") == 'True':
-    db_conf = {
+    _db_type = 'sqlite3'
+    _db_conf = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'django_test.db',
     }
@@ -109,14 +111,16 @@ else:
     if db_name is None or db_user is None or db_pw is None:
         raise Exception("Postgres env variables missing")
     
-    db_conf: dict[str, str] = {
+    _db_type = 'postgresql'
+    _db_conf: dict[str, str] = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': db_name,
         'USER': db_user,
         'PASSWORD': db_pw
     }
 
-DATABASES = { 'default': db_conf }
+DATABASES = { 'default': _db_conf }
+DATABASE_TYPE = _db_type
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -233,14 +237,3 @@ else:
 
 REMOTE_TOKEN = os.getenv("REMOTE_TOKEN") # Token used for remote file submissions
 REMOTE_USERNAME = os.getenv("REMOTE_USERNAME") # Username used for remote file submissions
-
-SITE_BRAND_NAME = os.getenv("SITE_BRAND_NAME")
-SITE_BRAND_URL = os.getenv("SITE_BRAND_URL")
-SITE_BRAND_ICON = os.getenv("SITE_BRAND_ICON")
-SITE_BRAND_LOGO = os.getenv("SITE_BRAND_LOGO")
-SITE_BRAND_DESC = os.getenv("SITE_BRAND_DESC")
-SITE_BRAND_EMBED = os.getenv("SITE_BRAND_EMBED")
-SITE_BRAND_PLEA = os.getenv("SITE_BRAND_PLEA")
-SITE_BRAND_COLOR = os.getenv("SITE_BRAND_COLOR")
-
-HOLIDAY = os.getenv("HOLIDAY") == 'True'

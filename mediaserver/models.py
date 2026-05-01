@@ -1,11 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.contrib.staticfiles import finders
 import uuid
-
-DEFAULT_ICON = finders.find('img/janart_icon.png')
-DEFAULT_LOGO = finders.find('img/janart_mgs.png')
 
 class SiteSettings(models.Model):
     site = models.OneToOneField(Site, related_name='settings', on_delete=models.CASCADE)
@@ -15,10 +11,22 @@ class SiteSettings(models.Model):
     site_brand_embed_description = models.TextField(default='Find all of your favorite chans here')
     site_brand_plea = models.TextField(default='Want to see your fanart here? Art can be submitted in the JADS #share-stuff-you-made channel by sending it, right clicking on your message, and selecting Apps 🡒 Submit Stream Fanart')
 
-    site_brand_icon = models.ImageField(upload_to='site/', default=DEFAULT_ICON)
-    site_brand_logo = models.ImageField(upload_to='site/', default=DEFAULT_LOGO)
+    site_brand_icon = models.ImageField(upload_to='site/', default='janart_icon.png')
+    site_brand_logo = models.ImageField(upload_to='site/', default='janart_mgs.png')
 
     holiday_mode = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+    
+    @classmethod
+    def load(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+    
+    def delete(self, *args, **kwargs):
+        pass
 
 class Tag(models.Model):
     tagname = models.CharField(max_length=256)
@@ -83,7 +91,7 @@ class DiscordCreator(models.Model):
 class Media(models.Model):
     file = models.FileField(default='default.jpg')
     creator_tags: models.ManyToManyField[Tag, "Media"] = models.ManyToManyField(Tag, blank=True, related_name='creator_tags')
-    discord_creator = models.ForeignKey(DiscordCreator, on_delete=models.SET_NULL, null=True, related_name='assoc_media')
+    discord_creator: models.ForeignKey[DiscordCreator, "Media"] = models.ForeignKey(DiscordCreator, on_delete=models.SET_NULL, null=True, related_name='assoc_media')
     title = models.CharField(max_length=256, blank=True)
     uploader = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     description = models.TextField(blank=True)

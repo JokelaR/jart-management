@@ -4,7 +4,7 @@ from .models import SiteSettings
 
 
 def brand_context(request: HttpRequest):
-    site = request.site
+    site = Site.objects.get_current()
     site_settings: SiteSettings = site.settings
 
     if type(site_settings) != SiteSettings:
