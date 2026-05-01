@@ -19,7 +19,7 @@ class OrphanTagFilter(admin.SimpleListFilter):
         return queryset
 
 
-class TagAdmin(admin.ModelAdmin[Tag]):
+class TagAdmin(admin.ModelAdmin):
     list_display = ['namespace', 'tagname', 'tag_count']
     list_filter = ['namespace', ('description', admin.EmptyFieldListFilter), OrphanTagFilter]
     search_fields = ['tagname', 'namespace']

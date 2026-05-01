@@ -1,15 +1,24 @@
-from django.conf import settings
+from django.contrib.sites.models import Site
+from django.http import HttpRequest
+from .models import SiteSettings
 
-SITE_BRAND_NAME = settings.SITE_BRAND_NAME
-SITE_BRAND_URL = settings.SITE_BRAND_URL
-SITE_BRAND_ICON = settings.SITE_BRAND_ICON
-SITE_BRAND_LOGO = settings.SITE_BRAND_LOGO
-SITE_BRAND_DESC = settings.SITE_BRAND_DESC
-SITE_BRAND_EMBED = settings.SITE_BRAND_EMBED
-SITE_BRAND_PLEA = settings.SITE_BRAND_PLEA
-SITE_BRAND_COLOR = settings.SITE_BRAND_COLOR
 
-def brand_context(request):
+def brand_context(request: HttpRequest):
+    site = request.site
+    site_settings: SiteSettings = site.settings
+
+    if type(site_settings) != SiteSettings:
+        raise Exception("Site settings not found for current site. Please create a SiteSettings object for the current site.")
+
+    SITE_BRAND_NAME = site_settings.site_name
+    SITE_BRAND_URL = site.domain
+    SITE_BRAND_ICON = site_settings.site_brand_icon.url
+    SITE_BRAND_LOGO = site_settings.site_brand_logo.url
+    SITE_BRAND_DESC = site_settings.site_brand_description
+    SITE_BRAND_EMBED = site_settings.site_brand_embed_description
+    SITE_BRAND_PLEA = site_settings.site_brand_plea
+    SITE_BRAND_COLOR = site_settings.site_brand_color
+
     return {
         'site_brand_name': SITE_BRAND_NAME,
         'site_brand_url': SITE_BRAND_URL,

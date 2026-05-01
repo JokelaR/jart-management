@@ -97,15 +97,26 @@ WSGI_APPLICATION = 'jartmanagement.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DATABASE'),
-        'USER': os.getenv('POSTGRES_USERNAME'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD')
+if os.getenv("JANART_TESTING_DB") == 'True':
+    db_conf = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'django_test.db',
     }
-}
+else:
+    db_name = os.getenv('POSTGRES_DATABASE')
+    db_user = os.getenv('POSTGRES_USERNAME')
+    db_pw = os.getenv('POSTGRES_PASSWORD')
+    if db_name is None or db_user is None or db_pw is None:
+        raise Exception("Postgres env variables missing")
+    
+    db_conf: dict[str, str] = {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': db_name,
+        'USER': db_user,
+        'PASSWORD': db_pw
+    }
 
+DATABASES = { 'default': db_conf }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -202,7 +213,7 @@ if DEBUG:
 if a_hosts is None:
     CSRF_TRUSTED_ORIGINS = []
 else:
-    _hosts = []
+    _hosts: list[str] = []
     for host in a_hosts.split(','):
         if host.startswith('http://') or host.startswith('https://'):
             _hosts.append(host)

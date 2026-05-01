@@ -1,7 +1,24 @@
 from django.db import models
 from django.conf import settings
-from django.db.models import QuerySet
+from django.contrib.sites.models import Site
+from django.contrib.staticfiles import finders
 import uuid
+
+DEFAULT_ICON = finders.find('img/janart_icon.png')
+DEFAULT_LOGO = finders.find('img/janart_mgs.png')
+
+class SiteSettings(models.Model):
+    site = models.OneToOneField(Site, related_name='settings', on_delete=models.CASCADE)
+    site_name = models.CharField(max_length=256, default='Janart')
+    site_brand_color = models.CharField(max_length=256, default='#1b1111')
+    site_brand_description = models.TextField(default='The Joseph Anderson Fanart Repository')
+    site_brand_embed_description = models.TextField(default='Find all of your favorite chans here')
+    site_brand_plea = models.TextField(default='Want to see your fanart here? Art can be submitted in the JADS #share-stuff-you-made channel by sending it, right clicking on your message, and selecting Apps 🡒 Submit Stream Fanart')
+
+    site_brand_icon = models.ImageField(upload_to='site/', default=DEFAULT_ICON)
+    site_brand_logo = models.ImageField(upload_to='site/', default=DEFAULT_LOGO)
+
+    holiday_mode = models.BooleanField(default=False)
 
 class Tag(models.Model):
     tagname = models.CharField(max_length=256)
@@ -65,7 +82,7 @@ class DiscordCreator(models.Model):
 
 class Media(models.Model):
     file = models.FileField(default='default.jpg')
-    creator_tags = models.ManyToManyField(Tag, blank=True, related_name='creator_tags')
+    creator_tags: models.ManyToManyField[Tag, "Media"] = models.ManyToManyField(Tag, blank=True, related_name='creator_tags')
     discord_creator = models.ForeignKey(DiscordCreator, on_delete=models.SET_NULL, null=True, related_name='assoc_media')
     title = models.CharField(max_length=256, blank=True)
     uploader = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -76,7 +93,7 @@ class Media(models.Model):
     height = models.IntegerField(null=True)
     width = models.IntegerField(null=True)
     loop = models.BooleanField()
-    tags = models.ManyToManyField(Tag, blank=True, related_name='tags')
+    tags: models.ManyToManyField[Tag, "Media"] = models.ManyToManyField(Tag, blank=True, related_name='tags')
     uploaded_date = models.DateTimeField("date uploaded", auto_now_add=True)
 
     @property
@@ -100,7 +117,7 @@ class Gallery(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=256)
     created_date = models.DateTimeField("date created", auto_now_add=True)
-    media_items = models.ManyToManyField(Media, through="GalleryOrder", related_name="media_gallery")
+    media_items: models.ManyToManyField[Media, "Gallery"] = models.ManyToManyField(Media, through="GalleryOrder", related_name="media_gallery")
     category = models.CharField(max_length=64)
     visible = models.BooleanField(default=False)
 
