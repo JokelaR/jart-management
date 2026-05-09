@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load thumbnail static %}
+
+{% block title %}{{ site_brand_name }} - All Tags{% endblock title %}
+{% block page-description %}List of all of the tags on {{ site_brand_name }}{% endblock %}
+{% block page-style %}
+<style>
+    main {
+        margin: 1rem 0.5rem;
+        box-shadow: 0rem 0 0.5rem rgba(0, 0, 0, 0.75);
+        padding: 1rem;
+        border-radius: 1rem;
+        background-color: rgba(0,0,0, 0.25);
+        font-size: 1.2rem;
+        h1 {
+            margin-top: 0;
+        }
+    }
+    #tagContainer {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 0.5rem;
+    }
+    .tag {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        height: 150px;
+        
+        .tagMetadata {
+            background-color: color-mix(in srgb, var(--tagcolor) 30%, rgba(0, 0, 0, 0.8));
+            color: white;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+
+            .tagLabel {
+                word-break: break-word;
+            }
+        }
+    }
+</style>
+{% endblock page-style %}
+
+{% block body-content %}
+<main>
+    <h1>All Tags</h1>
+    <div id="tagContainer">
+    {% for tag, media in tags %}
+        {% if tag.namespace == "creator" %}
+        <a data-tag-namespace="creator" data-tag-tagname="{{tag.tagname}}" class="tag" href="/creator/{{tag.tagname}}" title="Creator: {{tag.tagname}}">
+        {% else %}
+        <a data-tag-namespace="{{tag.namespace}}" data-tag-tagname="{{tag.tagname}}" class="tag" href="/tags/{{tag.namespace|default:"all"}}/{{tag.tagname}}" title="{{tag.namespace}}:{{tag.tagname}}">
+        {% endif %}
+            <div class="tagMetadata">
+                <div class="tagLabel">
+                {{tag.tagname}}
+                </div>
+                <div class="tagCount">{{tag.tag_count}}</div>
+            </div>
+            {% if media %}
+                {% if media.type == "video" or media.type == "embed" %}
+                <img class="tagThumbnail" src="{% static 'img/janart_icon.png' %}" alt="{{ media.type|title }} in {{tag.tagname}}">
+                {% else %}
+                <img class="tagThumbnail" src="{{ media.file|thumbnail_url:'200' }}" alt="Thumbnail for {{tag.tagname}}">
+                {% endif %}
+            {% endif %}
+        </a>
+    {% endfor %}
+    </div>
+</main>
+{% endblock body-content %}

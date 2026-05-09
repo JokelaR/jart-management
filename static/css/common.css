@@ -22,7 +22,7 @@ a {
 .tag[data-tag-namespace="meta"] { --tagcolor: rgb(63, 141, 224); }
 .tag {
     --tagcolor: rgb(187, 178, 58);
-    display:flex;
+    display: flex;
     border: 1px solid var(--tagcolor);
     color: var(--tagcolor) !important;
     background-color: color-mix(in srgb, var(--tagcolor) 20%, transparent);

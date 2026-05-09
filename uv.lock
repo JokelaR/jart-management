@@ -242,9 +242,6 @@ requires-dist = [
     { name = "python-dotenv", specifier = ">=1.2.2,<2" },
 ]
 
-[package.metadata.requires-dev]
-dev = []
-
 [[package]]
 name = "oauthlib"
 version = "3.3.1"

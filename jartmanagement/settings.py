@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (os.getenv("JANART_DEBUG") == 'True')
 from django.core.management.commands.runserver import Command as runserver
-runserver.default_port = os.getenv("JANART_DEBUG_PORT", '8000')
+runserver.default_port = int(os.getenv("JANART_DEBUG_PORT", 8000))
 
 # Application definition
 
@@ -66,7 +66,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'jartmanagement.urls'
 
-TEMPLATES = [
+type TemplateConfig = dict[str, str | bool | list[str] | dict[str, list[str]]]
+
+TEMPLATES: list[TemplateConfig] = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
@@ -121,6 +123,14 @@ else:
 
 DATABASES = { 'default': _db_conf }
 DATABASE_TYPE = _db_type
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'janart_cache_table',
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -181,19 +191,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_ROOT = os.getenv("DJANGO_MEDIA_ROOT")
 MEDIA_URL = 'media/'
 
-THUMBNAIL_ALIASES = {
+type ThumbnailAliasOptions = dict[str, dict[str, dict[str, str | bool | tuple[int, int]]]]
+THUMBNAIL_ALIASES: ThumbnailAliasOptions = {
     '': {
         '100': {'size': (100, 100), 'crop': True},
+        '200': {'size': (200, 150), 'crop': 'smart'},
     }
 }
 
 SITE_ID=1
 
-SOCIALACCOUNT_PROVIDERS = {
+type SocialAccountProviderConfig = dict[str, list[str] | dict[str, str]]
+SOCIALACCOUNT_PROVIDERS: dict[str, SocialAccountProviderConfig] = {
     'discord': {
         'APP': {
-            'client_id': os.getenv("DISCORD_APPID"),
-            'secret': os.getenv('DISCORD_SECRET')
+            'client_id': str(os.getenv("DISCORD_APPID")),
+            'secret': str(os.getenv('DISCORD_SECRET'))
         },
         "SCOPE": [
             "identify"
@@ -211,14 +224,14 @@ LOGIN_REDIRECT_URL = "/"
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-a_hosts = os.getenv("DJANGO_ALLOWED_HOSTS")
+a_hosts_env = os.getenv("DJANGO_ALLOWED_HOSTS")
 if DEBUG:
-    CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://127.0.0.1']
-if a_hosts is None:
-    CSRF_TRUSTED_ORIGINS = []
+    _hosts = ['http://localhost', 'http://127.0.0.1']
+if a_hosts_env is None:
+    _hosts = []
 else:
     _hosts: list[str] = []
-    for host in a_hosts.split(','):
+    for host in a_hosts_env.split(','):
         if host.startswith('http://') or host.startswith('https://'):
             _hosts.append(host)
         elif host == 'localhost':
@@ -226,14 +239,24 @@ else:
         else:
             _hosts.append(f'https://{host}')
 
-    CSRF_TRUSTED_ORIGINS = _hosts
+CSRF_TRUSTED_ORIGINS = _hosts
 
 if DEBUG:
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-elif a_hosts is None:
-    ALLOWED_HOSTS = []
+    _a_hosts = ['localhost', '127.0.0.1']
+elif a_hosts_env is None:
+    _a_hosts = []
 else:
-    ALLOWED_HOSTS = a_hosts.split(',')
+    _a_hosts = a_hosts_env.split(',')
+
+ALLOWED_HOSTS = _a_hosts
 
 REMOTE_TOKEN = os.getenv("REMOTE_TOKEN") # Token used for remote file submissions
 REMOTE_USERNAME = os.getenv("REMOTE_USERNAME") # Username used for remote file submissions
+
+
+# Style defaults from env
+SITE_BRAND_NAME = os.getenv("SITE_BRAND_NAME", "Janart")
+SITE_BRAND_DESC = os.getenv("SITE_BRAND_DESC", "The Joseph Anderson fanart Repository")
+SITE_BRAND_EMBED = os.getenv("SITE_BRAND_EMBED", "Find all of your favorite chans and kuns here")
+SITE_BRAND_PLEA = os.getenv("SITE_BRAND_PLEA", "You can submit fanart on the Discord server's #fanart channel!")
+SITE_BRAND_COLOR = os.getenv("SITE_BRAND_COLOR", "#1b1111")

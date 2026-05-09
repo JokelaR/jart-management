@@ -38,7 +38,7 @@ urlpatterns = [
 
     path("gallery/media/<uuid:media_uuid>", views.MediaView.as_view(template_name="galleries/media_item.html"), name="media_detail"),
 
-    path("tags/", views.all_tags, name="all_tags"),
+    path("tags/", views.all_tags_thumbnails, name="all_tags"),
     path("tags/discordLink", views.set_discord_user_tag, name="set_discord_user_tag"),
     path("objects/discordUnlink", views.remove_discord_user, name="remove_discord_user"),
 

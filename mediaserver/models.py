@@ -5,14 +5,14 @@ import uuid
 
 class SiteSettings(models.Model):
     site = models.OneToOneField(Site, related_name='settings', on_delete=models.CASCADE)
-    site_name = models.CharField(max_length=256, default='Janart')
-    site_brand_color = models.CharField(max_length=256, default='#1b1111')
-    site_brand_description = models.TextField(default='The Joseph Anderson Fanart Repository')
-    site_brand_embed_description = models.TextField(default='Find all of your favorite chans here')
-    site_brand_plea = models.TextField(default='Want to see your fanart here? Art can be submitted in the JADS #share-stuff-you-made channel by sending it, right clicking on your message, and selecting Apps 🡒 Submit Stream Fanart')
+    site_name = models.CharField(max_length=256, default=settings.SITE_BRAND_NAME)
+    site_brand_color = models.CharField(max_length=256, default=settings.SITE_BRAND_COLOR)
+    site_brand_description = models.TextField(default=settings.SITE_BRAND_DESC)
+    site_brand_embed_description = models.TextField(default=settings.SITE_BRAND_EMBED)
+    site_brand_plea = models.TextField(default=settings.SITE_BRAND_PLEA)
 
-    site_brand_icon = models.ImageField(upload_to='site/', default='janart_icon.png')
-    site_brand_logo = models.ImageField(upload_to='site/', default='janart_mgs.png')
+    site_brand_icon = models.ImageField(upload_to='site/')
+    site_brand_logo = models.ImageField(upload_to='site/')
 
     holiday_mode = models.BooleanField(default=False)
 
@@ -27,6 +27,9 @@ class SiteSettings(models.Model):
     
     def delete(self, *args, **kwargs):
         pass
+
+    class Meta:
+        verbose_name_plural = "Site settings"
 
 class Tag(models.Model):
     tagname = models.CharField(max_length=256)
@@ -90,8 +93,8 @@ class DiscordCreator(models.Model):
 
 class Media(models.Model):
     file = models.FileField(default='default.jpg')
-    creator_tags: models.ManyToManyField[Tag, "Media"] = models.ManyToManyField(Tag, blank=True, related_name='creator_tags')
-    discord_creator: models.ForeignKey[DiscordCreator, "Media"] = models.ForeignKey(DiscordCreator, on_delete=models.SET_NULL, null=True, related_name='assoc_media')
+    creator_tags: models.ManyToManyField[Tag, Media] = models.ManyToManyField(Tag, blank=True, related_name='creator_tags')
+    discord_creator: models.ForeignKey[DiscordCreator | None] = models.ForeignKey(DiscordCreator, on_delete=models.SET_NULL, null=True, related_name='assoc_media')
     title = models.CharField(max_length=256, blank=True)
     uploader = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     description = models.TextField(blank=True)
@@ -104,6 +107,9 @@ class Media(models.Model):
     tags: models.ManyToManyField[Tag, "Media"] = models.ManyToManyField(Tag, blank=True, related_name='tags')
     uploaded_date = models.DateTimeField("date uploaded", auto_now_add=True)
 
+    # Forward reference to Gallery model field
+    media_gallery: "models.ManyToManyField[Gallery, Media]"
+
     @property
     def creators(self) -> list[Tag]:
         if self.discord_creator and self.discord_creator.tag:
@@ -115,6 +121,9 @@ class Media(models.Model):
 
     def __str__(self):
         return f'{self.file.name} - {self.type} file by {self.creator_tags.first()}'
+    
+    class Meta:
+        verbose_name_plural = "Media"
     
 class EmbeddedMedia(Media):
     url = models.URLField()
@@ -131,6 +140,9 @@ class Gallery(models.Model):
 
     def __str__(self):
         return self.title
+    
+    class Meta:
+        verbose_name_plural = "Galleries"
     
 class GalleryOrder(models.Model):
     media =  models.ForeignKey(Media, on_delete=models.CASCADE)

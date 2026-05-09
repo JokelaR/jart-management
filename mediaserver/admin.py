@@ -1,14 +1,32 @@
+from typing import Any
+
 from django.contrib import admin
+from django.template.response import TemplateResponse
 from .models import Media, Gallery, SiteSettings, Tag
 from django.http import HttpRequest
 from django.db.models import QuerySet
+
+
+class SiteSettingsAdmin(admin.ModelAdmin):
+    exclude = ['site']
+    
+    def changeform_view(self, request: HttpRequest, object_id: str | None = ..., form_url: str = ..., extra_context: dict[str, bool] | None = ...) -> TemplateResponse:
+        extra_context = extra_context or {}
+        extra_context['show_delete'] = False
+        extra_context['show_save_and_add_another'] = False
+        extra_context['show_save_and_continue'] = False
+
+        return super().changeform_view(request, object_id, form_url, extra_context)
+
+    def has_delete_permission(self, request: HttpRequest, obj: Any | None = ...) -> bool:
+        return False
 
 
 class OrphanTagFilter(admin.SimpleListFilter):
     title = 'Orphaned Tags'
     parameter_name = 'orphaned'
 
-    def lookups(self, request: HttpRequest, model_admin):
+    def lookups(self, request: HttpRequest, model_admin: admin.ModelAdmin):
         return [
             ('yes', 'Orphan')
         ]
@@ -40,4 +58,4 @@ class TagAdmin(admin.ModelAdmin):
 admin.site.register(Media)
 admin.site.register(Gallery)
 admin.site.register(Tag, TagAdmin)
-admin.site.register(SiteSettings)
+admin.site.register(SiteSettings, SiteSettingsAdmin)

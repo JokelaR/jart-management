@@ -5,7 +5,7 @@ from .models import SiteSettings
 
 def brand_context(request: HttpRequest):
     site = Site.objects.get_current()
-    site_settings: SiteSettings = site.settings
+    site_settings: SiteSettings = SiteSettings.load()
 
     if type(site_settings) != SiteSettings:
         raise Exception("Site settings not found for current site. Please create a SiteSettings object for the current site.")

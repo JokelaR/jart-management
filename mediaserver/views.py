@@ -10,22 +10,23 @@ from .forms import *
 from jartmanagement.settings import REMOTE_USERNAME, REMOTE_TOKEN, DATABASE_TYPE
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
-from django.db.models import Q
+from django.db.models import Q, OuterRef, Subquery
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 import os, json
 from datetime import datetime
 
-from typing import Any
+from typing import Any, TypedDict, cast
 from django.http import HttpRequest
 from uuid import UUID
 
 # Create your views here.
 
 try:
-    TOKEN_UPLOAD_USER = get_user_model().objects.get(username=REMOTE_USERNAME)
+    _upload_user = get_user_model().objects.get(username=REMOTE_USERNAME)
 except:
-    TOKEN_UPLOAD_USER = None
+    _upload_user = None
+TOKEN_UPLOAD_USER = _upload_user
 
 @require_safe
 def index(request: HttpRequest):
@@ -59,7 +60,7 @@ def gallery(request: HttpRequest, gallery_id: int):
     items = gallery.media_items.select_related('discord_creator', 'discord_creator__tag').order_by('galleryorder')
     istoday = gallery.created_date.date() == datetime.today().date()
     
-    if (request.site.settings.holiday_mode):
+    if (SiteSettings.load().holiday_mode):
         return render(request, "galleries/holiday.html", {'gallery': gallery, 'page_obj': items, 'istoday': istoday})
     else:
         return render(request, "galleries/gallery.html", {'gallery': gallery, 'page_obj': items, 'istoday': istoday})
@@ -76,6 +77,46 @@ def latest_gallery(request: HttpRequest):
 def all_tags(request: HttpRequest):
     tags = Tag.objects.all()
     return render(request, "tags.html", {'tags': tags})
+
+class TagThumbnailRow(TypedDict):
+    id: int
+    newest_media_id: UUID | None
+
+@require_safe
+def all_tags_thumbnails(request: HttpRequest):
+    newest_media_id_sq = Media.objects.filter(
+        Q(tags=OuterRef("pk")) | 
+        Q(creator_tags=OuterRef("pk")) |
+        Q(discord_creator__tag=OuterRef("pk"))
+    ).distinct().order_by('-uploaded_date', '-pk').values('pk')[:1]
+    tag_rows = cast(
+        list[TagThumbnailRow],
+        list(
+            Tag.objects.annotate(newest_media_id=Subquery(newest_media_id_sq))
+            .order_by('namespace', 'tagname')
+            .values('id', 'newest_media_id')
+        )
+    )
+
+    tag_ids = [row['id'] for row in tag_rows]
+    tags_by_id: dict[int, Tag] = Tag.objects.filter(id__in=tag_ids).only('id', 'namespace', 'tagname', 'tag_count').in_bulk()
+
+    newest_ids = [media_id for row in tag_rows if (media_id := row['newest_media_id']) is not None]
+    newest_media_by_id: dict[UUID, Media] = Media.objects.filter(pk__in=newest_ids).select_related('discord_creator', 'uploader').prefetch_related('creator_tags', 'tags').in_bulk()
+
+    thumbnailed_tags: list[tuple[Tag, Media | None]] = []
+    for row in tag_rows:
+        media_id = row['newest_media_id']
+        if media_id is None:
+            continue
+
+        tag = tags_by_id.get(row['id'])
+        if tag is None:
+            continue
+
+        thumbnailed_tags.append((tag, newest_media_by_id.get(media_id)))
+
+    return render(request, 'tag_thumbnails.html', {'tags': thumbnailed_tags})
     
 def latest_gallery_by_category(request: HttpRequest, category: str):
     gallery = Gallery.objects.filter(category__iexact=category, visible=True).order_by('-created_date').first()
@@ -156,27 +197,22 @@ def create_media_with_token(request: HttpRequest):
     request_data = request.POST.copy()
     
     # Mandatory fields
-    try:
-        file = request.FILES["file"]
-    except KeyError:
+    file = request.FILES.get('file')
+    if not file:
         return JsonResponse({'error': 'Missing file'}, status=400)
     creator_name = request.POST.get('creator')
-    type = request.POST.get('type')
+    filetype = request.POST.get('type')
     height = request.POST.get('height')
     width = request.POST.get('width')
-    if not creator_name or not type or not height or not width:
+    if not creator_name or not filetype or not height or not width:
         return JsonResponse({'error': 'Missing one or more mandatory field'}, status=400)
 
-    
     # Optional fields
-    try:
-        description = request_data['description']
-    except KeyError:
-        description = ''
+    description = request_data.get('description', '')
 
     creator_object, _ = DiscordCreator.objects.get_or_create(username=creator_name)
     
-    media = Media(file=file, discord_creator=creator_object, description=description, type=type, height=height, width=width, loop=False, uploader=TOKEN_UPLOAD_USER)
+    media = Media(file=file, discord_creator=creator_object, description=description, type=filetype, height=height, width=width, loop=False, uploader=TOKEN_UPLOAD_USER)
     media.save()
     if creator_object.tag:
         creator_object.tag.count_uses()
@@ -186,10 +222,10 @@ def create_media_with_token(request: HttpRequest):
 @require_http_methods(['GET'])
 def get_media_gallery(request: HttpRequest, media_uuid: UUID):
     media = get_object_or_404(Media, uuid=media_uuid)
-    gallery: Gallery = media.media_gallery.first() # type: ignore
+    gallery = media.media_gallery.first()
     if gallery:
         return JsonResponse({'gallery_id': gallery.id}, status=200)
-    return JsonResponse({'error': 'No gallery'}, status=404)
+    return JsonResponse({'error': 'No gallery'}, status=404)    
 
 @require_safe
 @require_http_methods(['GET'])
@@ -197,7 +233,7 @@ def get_media_gallery(request: HttpRequest, media_uuid: UUID):
 def get_gallery_media(request: HttpRequest, gallery_id: int):
     gallery = get_object_or_404(Gallery, pk=gallery_id)
     items = gallery.media_items.select_related('discord_creator', 'discord_creator__tag').order_by('galleryorder')
-    media = []
+    media: list[Any] = []
     for item in items:
         discord_creator = item.discord_creator.username if item.discord_creator else ""
         discord_creator_tag = [{'tagname': item.discord_creator.tag.tagname, 'namespace': 'creator'}
