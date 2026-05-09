@@ -198,6 +198,7 @@ THUMBNAIL_ALIASES: ThumbnailAliasOptions = {
         '200': {'size': (200, 150), 'crop': 'smart'},
     }
 }
+THUMBNAIL_BASEDIR = 'thumbs'
 
 SITE_ID=1
 
