@@ -20,17 +20,18 @@
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         gap: 0.5rem;
+        justify-items: center;
 
         * {
             box-sizing: border-box;
         }
     }
     .tag {
-        min-width: 200px;
         position: relative;
         display: flex;
         flex-direction: column;
         height: 150px;
+        width: 100%;
         
         .tagMetadata {
             background-color: color-mix(in srgb, var(--tagcolor) 30%, rgba(0, 0, 0, 0.8));

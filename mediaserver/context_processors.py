@@ -12,8 +12,8 @@ def brand_context(request: HttpRequest):
 
     SITE_BRAND_NAME = site_settings.site_name
     SITE_BRAND_URL = site.domain
-    SITE_BRAND_ICON = site_settings.site_brand_icon.url
-    SITE_BRAND_LOGO = site_settings.site_brand_logo.url
+    SITE_BRAND_ICON = '' if not site_settings.site_brand_icon else site_settings.site_brand_icon.url
+    SITE_BRAND_LOGO = '' if not site_settings.site_brand_logo else site_settings.site_brand_logo.url
     SITE_BRAND_DESC = site_settings.site_brand_description
     SITE_BRAND_EMBED = site_settings.site_brand_embed_description
     SITE_BRAND_PLEA = site_settings.site_brand_plea
