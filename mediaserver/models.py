@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.core.cache import cache
 from easy_thumbnails.signals import saved_file # pyright: ignore[reportMissingTypeStubs]
 from easy_thumbnails.signal_handlers import generate_aliases_global # pyright: ignore[reportMissingTypeStubs, reportUnknownVariableType]
 import uuid
@@ -58,6 +59,9 @@ class Tag(models.Model):
         if(self.tag_count <= 0):
             self.delete()
 
+    def save(self, force_insert: bool = ..., force_update: bool = ..., using: str | None = ..., update_fields: Iterable[str] | None = ...) -> None:
+        cache.delete('thumbnailed_tags')
+        return super().save(force_insert, force_update, using, update_fields)
 
     @staticmethod
     def clear_orphans():

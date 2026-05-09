@@ -12,6 +12,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_delete
 from django.db.models import Q, OuterRef, Subquery
 from django.urls import reverse
+from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 import os, json
 from datetime import datetime
@@ -84,6 +85,10 @@ class TagThumbnailRow(TypedDict):
 
 @require_safe
 def all_tags_thumbnails(request: HttpRequest):
+    thumbnailed_tags: list[tuple[Tag, Media | None]] | None = cache.get('thumbnailed_tags')
+    if thumbnailed_tags:
+        return render(request, 'tag_thumbnails.html', {'tags': thumbnailed_tags})
+
     newest_media_id_sq = Media.objects.filter(
         Q(tags=OuterRef("pk")) | 
         Q(creator_tags=OuterRef("pk")) |
@@ -104,7 +109,7 @@ def all_tags_thumbnails(request: HttpRequest):
     newest_ids = [media_id for row in tag_rows if (media_id := row['newest_media_id']) is not None]
     newest_media_by_id: dict[UUID, Media] = Media.objects.filter(pk__in=newest_ids).select_related('discord_creator', 'uploader').prefetch_related('creator_tags', 'tags').in_bulk()
 
-    thumbnailed_tags: list[tuple[Tag, Media | None]] = []
+    thumbnailed_tags = []
     for row in tag_rows:
         media_id = row['newest_media_id']
         if media_id is None:
@@ -116,6 +121,7 @@ def all_tags_thumbnails(request: HttpRequest):
 
         thumbnailed_tags.append((tag, newest_media_by_id.get(media_id)))
 
+    cache.set('thumbnailed_tags', thumbnailed_tags, 60 * 60 * 24)  # Cache for 24 hours
     return render(request, 'tag_thumbnails.html', {'tags': thumbnailed_tags})
     
 def latest_gallery_by_category(request: HttpRequest, category: str):
