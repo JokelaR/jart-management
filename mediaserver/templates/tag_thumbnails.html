@@ -74,10 +74,10 @@
                 <div class="tagCount">{{tag.tag_count}}</div>
             </div>
             {% if media %}
-                {% if media.type|slice:":5" == "video" or media.type|slice:":5" == "embed" %}
-                <img class="tagThumbnail" src="{% static 'img/janart_icon.png' %}" alt="{{ media.type|title }} in {{tag.tagname}}">
+                {% if media.type|slice:":5" == "video" or media.type|slice:":5" == "embed" or media.type|slice:"-3:" == "gif" %}
+                <img class="tagThumbnail" src="{% static 'janart_icon.png' %}" alt="{{ media.type|title }} in {{tag.tagname}}" loading="lazy">
                 {% else %}
-                <img class="tagThumbnail" src="{{ media.file|thumbnail_url:'200' }}" alt="Thumbnail for {{tag.tagname}}">
+                <img class="tagThumbnail" src="{{ media.file|thumbnail_url:'200' }}" alt="Thumbnail for {{tag.tagname}}" loading="lazy">
                 {% endif %}
             {% endif %}
         </a>

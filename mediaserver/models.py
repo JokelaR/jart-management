@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.sites.models import Site
+from easy_thumbnails.signals import saved_file # pyright: ignore[reportMissingTypeStubs]
+from easy_thumbnails.signal_handlers import generate_aliases_global # pyright: ignore[reportMissingTypeStubs, reportUnknownVariableType]
 import uuid
 
 class SiteSettings(models.Model):
@@ -90,6 +92,8 @@ class DiscordCreator(models.Model):
     def count_uses(self):
         uses = self.assoc_media.count()
         return uses
+    
+saved_file.connect(generate_aliases_global) # pyright: ignore[reportUnknownArgumentType]
 
 class Media(models.Model):
     file = models.FileField(default='default.jpg')
