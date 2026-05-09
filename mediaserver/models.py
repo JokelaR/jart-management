@@ -59,9 +59,9 @@ class Tag(models.Model):
         if(self.tag_count <= 0):
             self.delete()
 
-    def save(self, force_insert: bool = ..., force_update: bool = ..., using: str | None = ..., update_fields: Iterable[str] | None = ...) -> None:
+    def save(self, **kwargs) -> None:
         cache.delete('thumbnailed_tags')
-        return super().save(force_insert, force_update, using, update_fields)
+        super().save(**kwargs)
 
     @staticmethod
     def clear_orphans():
