@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.cache import cache
+from django.urls import reverse
 from easy_thumbnails.signals import saved_file # pyright: ignore[reportMissingTypeStubs]
 from easy_thumbnails.signal_handlers import generate_aliases_global # pyright: ignore[reportMissingTypeStubs, reportUnknownVariableType]
 import uuid
@@ -82,6 +83,13 @@ class Tag(models.Model):
             if postcount != precount:
                 print(f'{tag.namespace}:{tag.tagname} | {precount} -> {postcount}')
 
+    def get_absolute_url(self):
+        if self.namespace == 'creator':
+            return reverse('media_by_creator_tag', args=[self.tagname])
+        if self.namespace == '':
+            return reverse('media_by_tag', args=['all', self.tagname])
+        return reverse('media_by_tag', args=[self.namespace, self.tagname])
+
     def __str__(self):
         return f'{self.namespace}:{self.tagname}'
     
@@ -130,6 +138,9 @@ class Media(models.Model):
         else:
             return list(self.creator_tags.all())
 
+    def get_absolute_url(self):
+        return reverse('media_detail', args=[str(self.uuid)])
+
     def __str__(self):
         return f'{self.file.name} - {self.type} file by {self.creator_tags.first()}'
     
@@ -149,6 +160,9 @@ class Gallery(models.Model):
     media_items: models.ManyToManyField[Media, "Gallery"] = models.ManyToManyField(Media, through="GalleryOrder", related_name="media_gallery")
     category = models.CharField(max_length=64)
     visible = models.BooleanField(default=False)
+
+    def get_absolute_url(self):
+        return reverse('gallery', args=[str(self.id)])
 
     def __str__(self):
         return self.title
