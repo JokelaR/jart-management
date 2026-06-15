@@ -19,7 +19,7 @@ class SiteSettings(models.Model):
 
     holiday_mode = models.BooleanField(default=False)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args: object, **kwargs: object) -> None:
         self.pk = 1
         super().save(*args, **kwargs)
     
@@ -28,7 +28,7 @@ class SiteSettings(models.Model):
         obj, _ = cls.objects.get_or_create(pk=1)
         return obj
     
-    def delete(self, *args, **kwargs):
+    def delete(self, *args: object, **kwargs: object) -> None:
         pass
 
     class Meta:
@@ -49,6 +49,8 @@ class Tag(models.Model):
     # Forward reference to discord model field
     assoc_discord: "models.Manager[DiscordCreator]"
 
+    last_updated = models.DateTimeField("last updated", auto_now=True)
+
 
     def count_uses(self):
         self.tag_count = self.tags.count() + self.creator_tags.count()
@@ -59,7 +61,7 @@ class Tag(models.Model):
         if(self.tag_count <= 0):
             self.delete()
 
-    def save(self, **kwargs) -> None:
+    def save(self, **kwargs: object) -> None:
         cache.delete('thumbnailed_tags')
         super().save(**kwargs)
 
@@ -114,6 +116,7 @@ class Media(models.Model):
     loop = models.BooleanField()
     tags: models.ManyToManyField[Tag, "Media"] = models.ManyToManyField(Tag, blank=True, related_name='tags')
     uploaded_date = models.DateTimeField("date uploaded", auto_now_add=True)
+    last_updated = models.DateTimeField("last updated", auto_now=True)
 
     # Forward reference to Gallery model field
     media_gallery: "models.ManyToManyField[Gallery, Media]"
@@ -142,6 +145,7 @@ class Gallery(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=256)
     created_date = models.DateTimeField("date created", auto_now_add=True)
+    last_updated = models.DateTimeField("last updated", auto_now=True)
     media_items: models.ManyToManyField[Media, "Gallery"] = models.ManyToManyField(Media, through="GalleryOrder", related_name="media_gallery")
     category = models.CharField(max_length=64)
     visible = models.BooleanField(default=False)

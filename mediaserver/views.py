@@ -17,7 +17,7 @@ from django.core.exceptions import ObjectDoesNotExist
 import os, json
 from datetime import datetime
 
-from typing import Any, TypedDict, cast
+from typing import Any, Iterable, TypedDict, cast
 from django.http import HttpRequest
 from uuid import UUID
 
@@ -28,6 +28,18 @@ try:
 except:
     _upload_user = None
 TOKEN_UPLOAD_USER = _upload_user
+
+
+def touch_media_tags(media: Media, tags: Iterable[Tag]) -> None:
+    media.save()
+    for tag in tags:
+        tag.count_uses()
+
+
+def touch_gallery_media(gallery: Gallery, media_items: Iterable[Media]) -> None:
+    gallery.save()
+    for media_item in media_items:
+        media_item.save()
 
 @require_safe
 def index(request: HttpRequest):
@@ -160,6 +172,7 @@ def add_tag(media_uuid: UUID, tag: str):
     media = Media.objects.get(uuid=media_uuid)
     tag_o = Tag.objects.get(tagname=tag)
     media.tags.add(tag_o)
+    touch_media_tags(media, [tag_o])
     return HttpResponse(status=200)
 
 @login_required
@@ -169,6 +182,7 @@ def remove_tag(media_uuid: UUID, tag: str):
     media = Media.objects.get(uuid=media_uuid)
     tag_o = Tag.objects.get(tagname=tag)
     media.tags.remove(tag_o)
+    touch_media_tags(media, [tag_o])
     return HttpResponse(status=200)
 
 @require_safe
@@ -329,10 +343,13 @@ def modify_media(request: HttpRequest):
     elif request.method == "DELETE":
         if request.body:
             media = Media.objects.get(uuid=request.body.decode())
+            related_galleries = list(media.media_gallery.all())
             for tag in media.tags.all():
                 media.tags.remove(tag)
                 tag.count_uses()
             media.delete()
+            for gallery in related_galleries:
+                gallery.save()
             return HttpResponse(f'Deleted {request.body}')
         else:
             return HttpResponse(status=400)
@@ -346,7 +363,7 @@ def diff_tags(media: Media, current_tags: list[dict[str, str]], new_tags: list[d
                 removed_tag = media.tags.get(namespace=tag['namespace'], tagname=tag['tagname'])
                 media.tags.remove(removed_tag)
                 print(f'removed {removed_tag} from {media}')
-                removed_tag.count_uses()
+                touch_media_tags(media, [removed_tag])
 
         for tag in new_tags:
             if tag not in current_tags:
@@ -356,7 +373,7 @@ def diff_tags(media: Media, current_tags: list[dict[str, str]], new_tags: list[d
                     added_tag = Tag.objects.create(namespace=tag['namespace'], tagname=tag['tagname'])
                 media.tags.add(added_tag)
                 print(f'added {added_tag} to {media}')
-                added_tag.count_uses()
+                touch_media_tags(media, [added_tag])
 
 def diff_creator_tags(media: Media, current_tags: list[dict[str, str]], new_tags: list[dict[str, str]]):
     if(current_tags != new_tags):
@@ -365,7 +382,7 @@ def diff_creator_tags(media: Media, current_tags: list[dict[str, str]], new_tags
                 removed_tag = media.creator_tags.get(tagname=tag['tagname'])
                 media.creator_tags.remove(removed_tag)
                 print(f'removed {removed_tag} from {media}')
-                removed_tag.count_uses()
+                touch_media_tags(media, [removed_tag])
 
         for tag in new_tags:
             if tag not in current_tags:
@@ -375,18 +392,23 @@ def diff_creator_tags(media: Media, current_tags: list[dict[str, str]], new_tags
                     added_tag = Tag.objects.create(namespace='creator', tagname=tag['tagname'])
                 media.creator_tags.add(added_tag)
                 print(f'added {added_tag} to {media}')
-                added_tag.count_uses()
+                touch_media_tags(media, [added_tag])
 
 @login_required
 @require_http_methods(["POST"])
 @permission_required('mediaserver.change_gallery')
 def update_gallery_media(request: HttpRequest, gallery_id: int):
     gallery = Gallery.objects.get(id=gallery_id)
+    previous_media_items = list(gallery.media_items.all())
     gallery.media_items.clear()
     #expect data in the format 'uuid,uuid,uuid'
+    updated_media_items: list[Media] = []
     i = 0
     for media_uuid in request.body.decode().split(','):
-        gallery.media_items.add(Media.objects.get(uuid=media_uuid), through_defaults={'order': i})
+        media = Media.objects.get(uuid=media_uuid)
+        gallery.media_items.add(media, through_defaults={'order': i})
+        updated_media_items.append(media)
+    touch_gallery_media(gallery, [*previous_media_items, *updated_media_items])
     return HttpResponse(f'Updated pairs for Gallery #{gallery_id}')
 
     
@@ -435,6 +457,7 @@ def associate_media(request: HttpRequest, gallery_id: int):
     gallery = Gallery.objects.get(id=gallery_id)
     media = Media.objects.get(uuid=uuid)
     gallery.media_items.add(media, through_defaults={'order': order})
+    touch_gallery_media(gallery, [media])
     return HttpResponse(status=200)
 
 @login_required
@@ -444,6 +467,7 @@ def add_single_media(request: HttpRequest, gallery_id: int):
     media = Media.objects.get(uuid=request.body.decode())
     gallery = Gallery.objects.get(id=gallery_id)
     gallery.media_items.add(media, through_defaults={'order': gallery.media_items.count()})
+    touch_gallery_media(gallery, [media])
     return HttpResponse(status=200)
 
 @login_required
@@ -469,7 +493,10 @@ def delete_gallery(request: HttpRequest, gallery_id: int):
 @permission_required('mediaserver.delete_gallery')
 def delete_media(request: HttpRequest, media_uuid: UUID):
     media = Media.objects.get(uuid=media_uuid)
+    related_galleries = list(media.media_gallery.all())
     media.delete()
+    for gallery in related_galleries:
+        gallery.save()
     return HttpResponseRedirect(reverse('orphaned_media'))
 
 @login_required
@@ -477,7 +504,11 @@ def delete_media(request: HttpRequest, media_uuid: UUID):
 @permission_required('mediaserver.change_media')
 def detach_media(request: HttpRequest, media_uuid: UUID):
     media = Media.objects.get(uuid=media_uuid)
+    related_galleries = list(media.media_gallery.all())
     media.media_gallery.clear() # type: ignore
+    media.save()
+    for gallery in related_galleries:
+        gallery.save()
     return HttpResponseRedirect(reverse('orphaned_media'))
 
 @login_required
@@ -528,7 +559,7 @@ def set_discord_user_tag(request: HttpRequest):
     return HttpResponse(status=200)
 
 @receiver(post_delete, sender=Media)
-def auto_delete_file_on_delete(sender: Media, instance: Media, **kwargs):
+def auto_delete_file_on_delete(sender: Media, instance: Media, **kwargs: object):
     """
     Deletes file from filesystem
     when corresponding `MediaFile` object is deleted.
@@ -558,7 +589,7 @@ class MediaView(ListView):
             ).prefetch_related('creator_tags', 'tags', 'media_gallery')
         return queryset
     
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: object):
         context = super().get_context_data(**kwargs)
         try:
             media = Media.objects.select_related('discord_creator', 'discord_creator__tag').prefetch_related('creator_tags', 'tags', 'media_gallery').get(uuid=self.kwargs.get('media_uuid'))
@@ -589,7 +620,7 @@ class CreatorTagListView(ListView):
         ).distinct().reverse()
         return queryset
     
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: object):
         context = super().get_context_data(**kwargs)
         try:
             context['tag'] = Tag.objects.get(namespace='creator', tagname__iexact=self.kwargs.get('tag'))
@@ -631,7 +662,7 @@ class TagListView(ListView):
             ).distinct().reverse()
         return queryset
     
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: object):
         context = super().get_context_data(**kwargs)
         if self.kwargs.get('namespace') == 'all':
             try:

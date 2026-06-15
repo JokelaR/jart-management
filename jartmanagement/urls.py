@@ -17,9 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import URLPattern, URLResolver, include, path
 from django.views.generic import RedirectView
+from django.contrib.sitemaps.views import sitemap
+from mediaserver.sitemaps import sitemaps
 
 urlpatterns: list[URLResolver|URLPattern] = [
     path('', include("mediaserver.urls")),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     path('admin/mediaserver/sitesettings/', RedirectView.as_view(url='/admin/mediaserver/sitesettings/1/', permanent=False)),
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
